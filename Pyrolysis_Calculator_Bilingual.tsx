@@ -1,6 +1,10 @@
 // ========================================
 // TEIL 1 von 5: Imports, Translations und State Setup
 // ========================================
+// Last Updated: 2025-11-26
+// Version: 2.0.1
+// Changes: Biochar price minimum value set to 0 EUR
+// Status: Production Ready
 
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie } from 'recharts';
