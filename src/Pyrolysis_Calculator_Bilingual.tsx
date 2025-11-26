@@ -1456,7 +1456,7 @@ const PyrolysisCalculator = () => {
                       <Info className="w-6 h-6" />
                     </button>
                   </div>
-                  <input id="biochar-price" name="biocharPrice" type="range" min="100" max="1000" step="10" value={inputs.biocharPrice} onChange={(e) => handleInputChange('biocharPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                  <input id="biochar-price" name="biocharPrice" type="range" min="0" max="1000" step="10" value={inputs.biocharPrice} onChange={(e) => handleInputChange('biocharPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
                   {expandedInfo['biocharPrice'] && (
                     <p className="mt-2 text-xs text-gray-400 bg-green-900/20 p-2 rounded">{t.biocharPriceInfo}</p>
                   )}
