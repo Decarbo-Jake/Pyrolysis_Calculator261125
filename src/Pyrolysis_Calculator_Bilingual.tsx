@@ -1662,7 +1662,7 @@ const PyrolysisCalculator = () => {
                     <div className="text-sm">
                       <span className="text-gray-400">{language === 'de' ? 'Wärmeverkauf' : 'Heat Sales'}: </span>
                       <span className="font-bold text-white">
-                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours)} €/{language === 'de' ? 'Jahr' : 'year'}
+                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours) / 100)} €/{language === 'de' ? 'Jahr' : 'year'}
                       </span>
                     </div>
                   </div>
