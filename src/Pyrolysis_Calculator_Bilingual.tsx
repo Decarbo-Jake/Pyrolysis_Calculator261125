@@ -11,7 +11,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import decarboLogo from './assets/decarbo-logo.png';
-import pyrolysisHero from './assets/pyrolysis-hero.png';
 
 // Translation object
 const translations = {
@@ -1277,7 +1276,7 @@ const PyrolysisCalculator = () => {
             <div className="flex-1 flex justify-center">
               <div className="bg-gradient-to-br from-green-900/40 to-cyan-900/40 border border-green-500/30 rounded-2xl p-8 shadow-2xl">
                 <img 
-                  src={pyrolysisHero}
+                  src="/pyrolysis-hero.png"
                   alt="Pyrolysis Technology" 
                   className="w-full h-auto object-cover rounded-xl"
                 />
