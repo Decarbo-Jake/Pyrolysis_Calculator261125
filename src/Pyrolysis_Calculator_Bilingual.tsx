@@ -2017,9 +2017,9 @@ const PyrolysisCalculator = () => {
             {/* Cumulative Cash Flow Chart */}
             <div id="cumulative-chart" className="bg-gray-900 p-3 rounded-lg border border-gray-700">
               <h3 className="text-xs font-semibold text-white mb-2">{t.cumulativeCashFlow}</h3>
-              <div style={{ width: '100%', height: '350px' }}>
-                <ResponsiveContainer width="100%" height={350}>
-                  <LineChart data={results.cumulativeCashFlows} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+              <div style={{ width: '100%', height: '400px' }}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={results.cumulativeCashFlows} margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis dataKey="year" stroke="#9ca3af" style={{ fontSize: '11px' }} />
                     <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} />
@@ -2033,15 +2033,15 @@ const PyrolysisCalculator = () => {
             {/* Annual Revenue vs Costs */}
             <div id="revenue-chart" className="bg-gray-900 p-3 rounded-lg border border-gray-700">
               <h3 className="text-xs font-semibold text-white mb-2">{t.annualRevenueVsCosts}</h3>
-              <div style={{ width: '100%', height: '350px' }}>
-                <ResponsiveContainer width="100%" height={350}>
+              <div style={{ width: '100%', height: '400px' }}>
+                <ResponsiveContainer width="100%" height={400}>
                   <BarChart data={[
                     { category: t.revenues, value: results.annualRevenue || 0 },
                     { category: t.costs, value: results.annualCosts || 0 },
                     { category: t.cashFlow, value: (results.annualRevenue || 0) - (results.annualCosts || 0) }
-                  ]} margin={{ top: 10, right: 10, left: 10, bottom: 50 }}>
+                  ]} margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="category" stroke="#9ca3af" style={{ fontSize: '10px' }} angle={-20} textAnchor="end" height={60} />
+                    <XAxis dataKey="category" stroke="#9ca3af" style={{ fontSize: '10px' }} angle={-20} textAnchor="end" height={40} />
                     <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} />
                     <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }} labelStyle={{ color: '#f3f4f6' }} formatter={(value) => `${formatNumber(value || 0)}k €`} />
                     <Bar dataKey="value" radius={[6, 6, 0, 0]}>
@@ -2055,10 +2055,10 @@ const PyrolysisCalculator = () => {
             </div>
 
             {/* Revenue Distribution Pie Chart */}
-            <div id="pie-chart" className="bg-gray-900 p-3 rounded-lg border border-gray-700">
+            <div id="pie-chart" className="bg-gray-900 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center">
               <h3 className="text-xs font-semibold text-white mb-2">{t.revenueBreakdownChart}</h3>
-              <div style={{ width: '100%', height: '350px' }}>
-                <ResponsiveContainer width="100%" height={350}>
+              <div style={{ width: '100%', height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <ResponsiveContainer width="100%" height={400}>
                   <PieChart>
                     <Pie data={(() => {
                       const annualFeedstock = (inputs.plantCapacity * inputs.operatingHours) / 1000;
@@ -2089,7 +2089,7 @@ const PyrolysisCalculator = () => {
                         { name: t.electricityRevenue, value: electricitySales, fill: '#fbbf24' },
                         { name: t.bioOilRevenue, value: bioOilSales, fill: '#a855f7' }
                       ].filter(item => item.value > 0);
-                    })()} cx={140} cy={100} labelLine={false} label={({ percent }) => `${(percent * 100).toFixed(0)}%`} outerRadius={75} innerRadius={0} dataKey="value" />
+                    })()} cx="50%" cy="50%" labelLine={false} label={({ percent }) => `${(percent * 100).toFixed(0)}%`} outerRadius={110} innerRadius={0} dataKey="value" />
                     <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }} labelStyle={{ color: '#ffffff' }} formatter={(value) => `${formatNumber(value)}k €`} />
                     <Legend verticalAlign="bottom" height={60} wrapperStyle={{ color: '#9ca3af', fontSize: '10px', paddingTop: '10px' }} />
                   </PieChart>
