@@ -1144,127 +1144,164 @@ const PyrolysisCalculator = () => {
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          {/* Title Section - Right Aligned */}
-          <div className="text-right mb-8">
-            <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-2">
-              Pyrolyse-Anlagen
-            </h1>
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-              ROI-Rechner
-            </h1>
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          {/* Main Hero Content - Left Aligned with Image Right */}
+          <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
+            {/* Left Content */}
+            <div className="flex-1">
+              {/* Title Section */}
+              <div className="mb-6">
+                <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-2">
+                  {language === 'de' ? 'Pyrolyse-Anlagen' : 'Pyrolysis Plants'}
+                </h1>
+                <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+                  {language === 'de' ? 'ROI-Rechner' : 'ROI Calculator'}
+                </h1>
+              </div>
+
+              {/* Subtitle */}
+              <div className="mb-8">
+                <p className="text-lg text-gray-300">
+                  {language === 'de' 
+                    ? 'Entdecken Sie die wirtschaftlichen Potenziale der Pyrolyse-Technologie – für negative Emissionen und regenerative Energie.'
+                    : 'Discover the economic potential of pyrolysis technology – for negative emissions and renewable energy.'
+                  }
+                </p>
+              </div>
+
+              {/* Info Cards with Hover Dropdowns */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Card 1: What Can Calculator Do */}
+                <div className="group relative bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/30 rounded-xl p-5 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-help">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-500/30 flex items-center justify-center">
+                      <span className="text-blue-300 font-bold">1</span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-blue-300">
+                      {language === 'de' ? 'Was kann dieser Rechner?' : 'What can this calculator do?'}
+                    </h3>
+                  </div>
+                  {/* Dropdown Content */}
+                  <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-blue-500/50 rounded-xl p-4 shadow-xl z-10">
+                    <ul className="text-gray-300 text-xs space-y-2">
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Schnelle Ersteinschätzung der Wirtschaftlichkeit Ihres Pyrolyseprojekts' : 'Quick assessment of your pyrolysis project economics'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Berechnung von NPV, IRR und Amortisationszeit' : 'Calculate NPV, IRR and payback period'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Szenarien-Analysen mit flexiblen Parametern' : 'Scenario analysis with flexible parameters'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Professionelle PDF-Reports zum Download' : 'Professional PDF reports for download'}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Card 2: For Whom */}
+                <div className="group relative bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-500/30 rounded-xl p-5 hover:border-green-400/60 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 cursor-help">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500/30 flex items-center justify-center">
+                      <span className="text-green-300 font-bold">2</span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-green-300">
+                      {language === 'de' ? 'Für wen ist das Tool?' : 'Who is this for?'}
+                    </h3>
+                  </div>
+                  {/* Dropdown Content */}
+                  <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-green-500/50 rounded-xl p-4 shadow-xl z-10">
+                    <ul className="text-gray-300 text-xs space-y-2">
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Projektentwickler und Investoren' : 'Project developers and investors'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Anlagenbetreiber und Planer' : 'Plant operators and planners'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Finanzierungspartner und Banken' : 'Financing partners and banks'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Nachhaltigkeits- und ESG-Profis' : 'Sustainability and ESG professionals'}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Card 3: Important Notes */}
+                <div className="group relative bg-gradient-to-br from-amber-900/30 to-amber-800/20 border border-amber-500/30 rounded-xl p-5 hover:border-amber-400/60 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 cursor-help">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-500/30 flex items-center justify-center">
+                      <span className="text-amber-300 font-bold">!</span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-amber-300">
+                      {language === 'de' ? 'Wichtige Hinweise' : 'Important Notes'}
+                    </h3>
+                  </div>
+                  {/* Dropdown Content */}
+                  <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-amber-500/50 rounded-xl p-4 shadow-xl z-10">
+                    <ul className="text-gray-300 text-xs space-y-2">
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Dies ist eine Ersteinschätzung, keine Bankierbarkeitsanalyse' : 'This is a preliminary assessment, not a bankability analysis'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Standardwerte basieren auf typischen Marktszenarien' : 'Standard values based on typical market scenarios'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Alle Eingaben sind anpassbar für Ihre Situation' : 'All inputs can be customized for your situation'}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-400 mt-1">•</span>
+                        <span>{language === 'de' ? 'Kontaktieren Sie uns für detaillierte Analysen' : 'Contact us for detailed analyses'}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Image */}
+            <div className="flex-1 flex justify-center">
+              <div className="bg-gradient-to-br from-green-900/40 to-cyan-900/40 border border-green-500/30 rounded-2xl p-8 shadow-2xl">
+                <img 
+                  src={decarboLogo} 
+                  alt="Pyrolysis Technology" 
+                  className="w-full h-auto object-cover rounded-xl"
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Subtitle */}
-          <div className="text-right mb-12">
-            <p className="text-lg text-gray-300 max-w-2xl ml-auto">
-              {language === 'de' 
-                ? 'Entdecken Sie die wirtschaftlichen Potenziale der Pyrolyse-Technologie – für negative Emissionen und regenerative Energie.'
-                : 'Discover the economic potential of pyrolysis technology – for negative emissions and renewable energy.'
+          {/* Call-to-Action Button */}
+          <div className="flex justify-center mt-12">
+            <a 
+              href={language === 'de' 
+                ? 'https://www.decarbo-engineering.com/kontakt' 
+                : 'https://www.decarbo-engineering.com/contact'
               }
-            </p>
-          </div>
-
-          {/* Info Cards with Hover Dropdowns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Card 1: What Can Calculator Do */}
-            <div className="group relative bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/30 rounded-lg p-5 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-help">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-blue-500/30 flex items-center justify-center">
-                  <span className="text-blue-300 font-bold">1</span>
-                </div>
-                <h3 className="text-sm font-semibold text-blue-300">
-                  {language === 'de' ? 'Was kann dieser Rechner?' : 'What can this calculator do?'}
-                </h3>
-              </div>
-              {/* Dropdown Content */}
-              <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-blue-500/50 rounded-lg p-4 shadow-xl z-10">
-                <ul className="text-gray-300 text-xs space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Schnelle Ersteinschätzung der Wirtschaftlichkeit Ihres Pyrolyseprojekts' : 'Quick assessment of your pyrolysis project economics'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Berechnung von NPV, IRR und Amortisationszeit' : 'Calculate NPV, IRR and payback period'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Szenarien-Analysen mit flexiblen Parametern' : 'Scenario analysis with flexible parameters'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Professionelle PDF-Reports zum Download' : 'Professional PDF reports for download'}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Card 2: For Whom */}
-            <div className="group relative bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-500/30 rounded-lg p-5 hover:border-green-400/60 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 cursor-help">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-green-500/30 flex items-center justify-center">
-                  <span className="text-green-300 font-bold">2</span>
-                </div>
-                <h3 className="text-sm font-semibold text-green-300">
-                  {language === 'de' ? 'Für wen ist das Tool?' : 'Who is this for?'}
-                </h3>
-              </div>
-              {/* Dropdown Content */}
-              <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-green-500/50 rounded-lg p-4 shadow-xl z-10">
-                <ul className="text-gray-300 text-xs space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Projektentwickler und Investoren' : 'Project developers and investors'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Anlagenbetreiber und Planer' : 'Plant operators and planners'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Finanzierungspartner und Banken' : 'Financing partners and banks'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Nachhaltigkeits- und ESG-Profis' : 'Sustainability and ESG professionals'}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Card 3: Important Notes */}
-            <div className="group relative bg-gradient-to-br from-amber-900/30 to-amber-800/20 border border-amber-500/30 rounded-lg p-5 hover:border-amber-400/60 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 cursor-help">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-amber-500/30 flex items-center justify-center">
-                  <span className="text-amber-300 font-bold">!</span>
-                </div>
-                <h3 className="text-sm font-semibold text-amber-300">
-                  {language === 'de' ? 'Wichtige Hinweise' : 'Important Notes'}
-                </h3>
-              </div>
-              {/* Dropdown Content */}
-              <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-amber-500/50 rounded-lg p-4 shadow-xl z-10">
-                <ul className="text-gray-300 text-xs space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Dies ist eine Ersteinschätzung, keine Bankierbarkeitsanalyse' : 'This is a preliminary assessment, not a bankability analysis'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Standardwerte basieren auf typischen Marktszenarien' : 'Standard values based on typical market scenarios'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Alle Eingaben sind anpassbar für Ihre Situation' : 'All inputs can be customized for your situation'}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>{language === 'de' ? 'Kontaktieren Sie uns für detaillierte Analysen' : 'Contact us for detailed analyses'}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-400 hover:to-cyan-400 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-green-500/50 transform hover:scale-105"
+            >
+              <span className="text-lg">
+                {language === 'de' ? '🤝 Decarbo Kontaktieren' : '🤝 Contact Decarbo'}
+              </span>
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
           </div>
         </div>
       </div>
