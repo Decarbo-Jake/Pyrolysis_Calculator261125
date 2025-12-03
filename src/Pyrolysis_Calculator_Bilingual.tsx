@@ -15,7 +15,7 @@ import decarboLogo from './assets/decarbo-logo.png';
 // Translation object
 const translations = {
   de: {
-    title: "Pyrolyse-Anlagen Wirtschaftlichkeitsrechner",
+    title: "Dateneingabe",
     subtitle: "ENABLING NET-ZERO",
     tagline: "Produzieren Sie regenerative Energie und negative Emissionen mit Pyrolyse Anlagen",
     productSelection: "Produktauswahl",
@@ -136,7 +136,7 @@ const translations = {
     totalCo2Removal: "CO₂ Entfernt über Projektlaufzeit"
   },
   en: {
-    title: "Pyrolysis Plant Economic Calculator",
+    title: "Data Input",
     subtitle: "ENABLING NET-ZERO",
     tagline: "Produce renewable energy and negative emissions with pyrolysis plants",
     productSelection: "Product Selection",
