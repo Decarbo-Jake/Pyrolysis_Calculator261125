@@ -1,5 +1,5 @@
 // ========================================
-// TEIL 1 von 5: Imports, Translations und State Setup
+// TEIL 1 von 5: Imports, Translations und State    Setup
 // ========================================
 // Last Updated: 2025-11-26
 // Version: 2.0.1
