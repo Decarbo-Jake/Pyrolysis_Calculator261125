@@ -1,5 +1,5 @@
 // ========================================
-// TEIL 1 von 5: Imports, Translations und State    Setup
+// TEIL 1 von 5: Imports, Translations und State Setup
 // ========================================
 // Last Updated: 2025-11-26
 // Version: 2.0.1
@@ -1139,7 +1139,133 @@ const PyrolysisCalculator = () => {
               <span className="font-medium">{language === 'de' ? 'DE' : 'EN'}</span>
             </button>
           </div>
-          <p className="text-gray-400 mt-4 text-sm">{t.tagline}</p>
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          {/* Title Section - Right Aligned */}
+          <div className="text-right mb-8">
+            <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-2">
+              Pyrolyse-Anlagen
+            </h1>
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+              ROI-Rechner
+            </h1>
+          </div>
+
+          {/* Subtitle */}
+          <div className="text-right mb-12">
+            <p className="text-lg text-gray-300 max-w-2xl ml-auto">
+              {language === 'de' 
+                ? 'Entdecken Sie die wirtschaftlichen Potenziale der Pyrolyse-Technologie – für negative Emissionen und regenerative Energie.'
+                : 'Discover the economic potential of pyrolysis technology – for negative emissions and renewable energy.'
+              }
+            </p>
+          </div>
+
+          {/* Info Cards with Hover Dropdowns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Card 1: What Can Calculator Do */}
+            <div className="group relative bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/30 rounded-lg p-5 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-help">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-blue-500/30 flex items-center justify-center">
+                  <span className="text-blue-300 font-bold">1</span>
+                </div>
+                <h3 className="text-sm font-semibold text-blue-300">
+                  {language === 'de' ? 'Was kann dieser Rechner?' : 'What can this calculator do?'}
+                </h3>
+              </div>
+              {/* Dropdown Content */}
+              <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-blue-500/50 rounded-lg p-4 shadow-xl z-10">
+                <ul className="text-gray-300 text-xs space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Schnelle Ersteinschätzung der Wirtschaftlichkeit Ihres Pyrolyseprojekts' : 'Quick assessment of your pyrolysis project economics'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Berechnung von NPV, IRR und Amortisationszeit' : 'Calculate NPV, IRR and payback period'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Szenarien-Analysen mit flexiblen Parametern' : 'Scenario analysis with flexible parameters'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Professionelle PDF-Reports zum Download' : 'Professional PDF reports for download'}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Card 2: For Whom */}
+            <div className="group relative bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-500/30 rounded-lg p-5 hover:border-green-400/60 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 cursor-help">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-green-500/30 flex items-center justify-center">
+                  <span className="text-green-300 font-bold">2</span>
+                </div>
+                <h3 className="text-sm font-semibold text-green-300">
+                  {language === 'de' ? 'Für wen ist das Tool?' : 'Who is this for?'}
+                </h3>
+              </div>
+              {/* Dropdown Content */}
+              <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-green-500/50 rounded-lg p-4 shadow-xl z-10">
+                <ul className="text-gray-300 text-xs space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Projektentwickler und Investoren' : 'Project developers and investors'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Anlagenbetreiber und Planer' : 'Plant operators and planners'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Finanzierungspartner und Banken' : 'Financing partners and banks'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Nachhaltigkeits- und ESG-Profis' : 'Sustainability and ESG professionals'}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Card 3: Important Notes */}
+            <div className="group relative bg-gradient-to-br from-amber-900/30 to-amber-800/20 border border-amber-500/30 rounded-lg p-5 hover:border-amber-400/60 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 cursor-help">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-amber-500/30 flex items-center justify-center">
+                  <span className="text-amber-300 font-bold">!</span>
+                </div>
+                <h3 className="text-sm font-semibold text-amber-300">
+                  {language === 'de' ? 'Wichtige Hinweise' : 'Important Notes'}
+                </h3>
+              </div>
+              {/* Dropdown Content */}
+              <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-amber-500/50 rounded-lg p-4 shadow-xl z-10">
+                <ul className="text-gray-300 text-xs space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Dies ist eine Ersteinschätzung, keine Bankierbarkeitsanalyse' : 'This is a preliminary assessment, not a bankability analysis'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Standardwerte basieren auf typischen Marktszenarien' : 'Standard values based on typical market scenarios'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Alle Eingaben sind anpassbar für Ihre Situation' : 'All inputs can be customized for your situation'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>{language === 'de' ? 'Kontaktieren Sie uns für detaillierte Analysen' : 'Contact us for detailed analyses'}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
