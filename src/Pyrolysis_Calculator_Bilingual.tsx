@@ -1276,7 +1276,7 @@ const PyrolysisCalculator = () => {
             <div className="flex-1 flex justify-center">
               <div className="bg-gradient-to-br from-green-900/40 to-cyan-900/40 border border-green-500/30 rounded-2xl p-8 shadow-2xl">
                 <img 
-                  src={decarboLogo} 
+                  src="/src/assets/pyrolysis-hero.png" 
                   alt="Pyrolysis Technology" 
                   className="w-full h-auto object-cover rounded-xl"
                 />
@@ -1285,7 +1285,7 @@ const PyrolysisCalculator = () => {
           </div>
 
           {/* Call-to-Action Button */}
-          <div className="flex justify-center mt-12">
+          <div className="flex justify-start mt-8">
             <a 
               href={language === 'de' 
                 ? 'https://www.decarbo-engineering.com/kontakt' 
