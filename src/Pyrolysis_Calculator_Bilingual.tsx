@@ -1274,13 +1274,11 @@ const PyrolysisCalculator = () => {
 
             {/* Right Image */}
             <div className="flex-1 flex justify-center">
-              <div className="bg-gradient-to-br from-green-900/40 to-cyan-900/40 border border-green-500/30 rounded-2xl p-8 shadow-2xl">
-                <img 
-                  src="/pyrolysis-hero.png"
-                  alt="Pyrolysis Technology" 
-                  className="w-full h-auto object-cover rounded-xl"
-                />
-              </div>
+              <img 
+                src="/pyrolysis-hero.png"
+                alt="Pyrolysis Technology" 
+                className="w-full h-full object-cover rounded-2xl shadow-2xl"
+              />
             </div>
           </div>
 
@@ -1296,7 +1294,7 @@ const PyrolysisCalculator = () => {
               className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-400 hover:to-cyan-400 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-green-500/50 transform hover:scale-105"
             >
               <span className="text-lg">
-                {language === 'de' ? '🤝 Decarbo Kontaktieren' : '🤝 Contact Decarbo'}
+                {language === 'de' ? 'Decarbo Kontaktieren' : 'Contact Decarbo'}
               </span>
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
