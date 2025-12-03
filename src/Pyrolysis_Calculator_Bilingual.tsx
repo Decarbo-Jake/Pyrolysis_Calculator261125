@@ -1311,68 +1311,6 @@ const PyrolysisCalculator = () => {
             <div className="w-1 h-8 bg-gradient-to-b from-green-400 to-green-600 rounded"></div>
             {t.title}
           </h2>
-
-          {/* Introduction Section */}
-          <div className="bg-gradient-to-r from-blue-900/20 to-green-900/20 border border-blue-500/30 rounded-lg p-5 mb-8">
-            <h3 className="text-lg font-semibold text-blue-300 mb-3">
-              {language === 'de' ? 'Willkommen beim Pyrolyse-Anlagen Wirtschaftlichkeitsrechner' : 'Welcome to the Pyrolysis Plant Economic Calculator'}
-            </h3>
-            
-            <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-              {language === 'de' 
-                ? 'Dieses Tool richtet sich an Projektentwickler, Investoren und Anlagenbetreiber, die sich einen ersten Überblick über die wirtschaftlichen Zusammenhänge von Pyrolyseanlagen und Biokohleproduktion verschaffen möchten.'
-                : 'This tool is designed for project developers, investors, and plant operators who want to gain an overview of the economic relationships of pyrolysis plants and biochar production.'
-              }
-            </p>
-
-            <h4 className="text-base font-semibold text-green-300 mb-3">
-              {language === 'de' ? 'Was kann dieser Rechner?' : 'What can this calculator do?'}
-            </h4>
-            <ul className="text-gray-300 text-sm space-y-2 mb-4 ml-4">
-              <li className="list-disc">
-                {language === 'de' 
-                  ? 'Schnelle Ersteinschätzung der Wirtschaftlichkeit Ihres Pyrolyseprojekts'
-                  : 'Quick preliminary assessment of your pyrolysis project\'s economics'
-                }
-              </li>
-              <li className="list-disc">
-                {language === 'de' 
-                  ? 'Vergleich verschiedener Produktkombinationen (Biochar, Wärme, Strom, Bio-Öl)'
-                  : 'Comparison of different product combinations (Biochar, Heat, Electricity, Bio-Oil)'
-                }
-              </li>
-              <li className="list-disc">
-                {language === 'de' 
-                  ? 'Transparente Darstellung von Investitionskosten, Erlösen und Amortisationszeiten'
-                  : 'Transparent presentation of investment costs, revenues, and payback periods'
-                }
-              </li>
-              <li className="list-disc">
-                {language === 'de' 
-                  ? 'Visualisierung der finanziellen Kennzahlen (NPV, IRR, Payback)'
-                  : 'Visualization of financial metrics (NPV, IRR, Payback)'
-                }
-              </li>
-            </ul>
-
-            <div className="border-t border-blue-500/30 pt-4">
-              <p className="text-yellow-300 text-sm font-semibold mb-2">
-                {language === 'de' ? 'Wichtiger Hinweis:' : 'Important Notice:'}
-              </p>
-              <p className="text-gray-300 text-sm leading-relaxed mb-3">
-                {language === 'de' 
-                  ? 'Diese Modellrechnung dient ausschließlich einer ersten Orientierung. Für eine verlässliche, projektspezifische Wirtschaftlichkeitsberechnung kontaktieren Sie bitte unser Expertenteam. Wir unterstützen Sie gerne bei der detaillierten Planung und Umsetzung Ihres Pyrolyseprojekts.'
-                  : 'This model calculation is for preliminary orientation only. For a reliable, project-specific economic analysis, please contact our expert team. We are happy to support you with detailed planning and implementation of your pyrolysis project.'
-                }
-              </p>
-              <p className="text-gray-400 text-sm italic">
-                {language === 'de' 
-                  ? 'Entdecken Sie die wirtschaftlichen Potenziale der Pyrolyse-Technologie – für negative Emissionen und regenerative Energie.'
-                  : 'Discover the economic potential of pyrolysis technology – for negative emissions and renewable energy.'
-                }
-              </p>
-            </div>
-          </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Product Selection */}
