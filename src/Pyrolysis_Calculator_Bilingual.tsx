@@ -1049,8 +1049,8 @@ const PyrolysisCalculator = () => {
       // Small delay before capturing charts
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      const chartWidth = 80;
-      const chartHeight = 60;
+      const chartWidth = 60;
+      const chartHeight = 45;
       
       for (let i = 0; i < chartIds.length; i++) {
         try {
