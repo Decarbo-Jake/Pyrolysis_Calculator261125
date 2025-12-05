@@ -536,6 +536,16 @@ const PyrolysisCalculator = () => {
 
   useEffect(() => { calculateNPV(); }, [inputs, products]);
 
+  // Automatisch Wartungskosten an 2.5% der Gesamtinvestition anpassen
+  useEffect(() => {
+    let totalInvestment = inputs.initialInvestment;
+    if (products.heat) totalInvestment += inputs.heatInvestment;
+    if (products.electricity) totalInvestment += inputs.electricityInvestment;
+    if (products.bioOil) totalInvestment += inputs.bioOilInvestment;
+    const guidanceValue = totalInvestment * 0.025;
+    setInputs(prev => ({ ...prev, maintenanceCost: guidanceValue }));
+  }, [products.heat, products.electricity, products.bioOil, inputs.initialInvestment, inputs.heatInvestment, inputs.electricityInvestment, inputs.bioOilInvestment]);
+
   const getProductIcon = (product) => {
     switch (product) {
       case 'biochar': return <Leaf className="w-4 h-4" />;
@@ -1763,7 +1773,7 @@ const PyrolysisCalculator = () => {
                     <div className="text-sm">
                       <span className="text-gray-400">{language === 'de' ? 'Wärmeverkauf' : 'Heat Sales'}: </span>
                       <span className="font-bold text-white">
-                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours) / 100)} €/{language === 'de' ? 'Jahr' : 'year'}
+                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours / 1000)} €/{language === 'de' ? 'Jahr' : 'year'}
                       </span>
                     </div>
                   </div>
@@ -1805,7 +1815,7 @@ const PyrolysisCalculator = () => {
                       </span>
                     </div>
                     <div className="text-sm mt-2">
-                      <span className="text-gray-400">{language === 'de' ? 'Bruttostromverbrauch: ' : 'Gross Electricity Consumption: '}</span>
+                      <span className="text-gray-400">{language === 'de' ? 'Bruttostromverbrauch: ' : 'Gross El. Consumption: '}</span>
                       <span className="font-bold text-white">
                         {formatNumber(inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
                       </span>
