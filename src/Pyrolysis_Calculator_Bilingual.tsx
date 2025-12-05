@@ -443,11 +443,8 @@ const PyrolysisCalculator = () => {
     
     // Heat Revenue
     if (products.heat) {
-      const combustionPower = inputs.plantCapacity * inputs.fuelHeatValue / 1000;
-      const usableThermalPower = combustionPower * inputs.thermalEfficiency / 100;
-      const totalHeatProduction = usableThermalPower * operatingHours;
-      const soldHeatProduction = totalHeatProduction * (inputs.heatYield / 100);
-      const heatRevenue = soldHeatProduction * heatPrice;
+      const usableThermalPower = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100);
+      const heatRevenue = usableThermalPower * 1000 * (inputs.heatYield / 100) * operatingHours * heatPrice;
       annualRevenue += heatRevenue;
     }
     
@@ -569,7 +566,7 @@ const PyrolysisCalculator = () => {
   const sendEmailNotification = async () => {
     try {
       // Calculate all relevant KPIs
-      const heatRev = products.heat ? ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours / 1000) : 0;
+      const heatRev = products.heat ? (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000000 : 0;
       const elecRev = products.electricity ? Math.max(0, ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice / 1000) : 0;
       const bioOilRev = products.bioOil ? ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100) * inputs.bioOilPrice) : 0;
       const biocharRev = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.biocharPrice / 1000;
@@ -828,7 +825,7 @@ const PyrolysisCalculator = () => {
       pdf.text('Umsatz Wärme', margin + 1, yPosition + 3);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      const heatRev = products.heat ? ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours / 1000) : 0;
+      const heatRev = products.heat ? (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000000 : 0;
       pdf.text(`${formatNumber(heatRev)}k €/a`, margin + 1, yPosition + 10);
       
       // Electricity Revenue Box (Gray/Dark)
@@ -1773,7 +1770,7 @@ const PyrolysisCalculator = () => {
                     <div className="text-sm">
                       <span className="text-gray-400">{language === 'de' ? 'Wärmeverkauf' : 'Heat Sales'}: </span>
                       <span className="font-bold text-white">
-                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours / 1000)} €/{language === 'de' ? 'Jahr' : 'year'}
+                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000000)} k€/{language === 'de' ? 'Jahr' : 'year'}
                       </span>
                     </div>
                   </div>
@@ -1957,7 +1954,7 @@ const PyrolysisCalculator = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
               {(() => {
-                const heatRevenue = products.heat ? (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.heatYield / 100) * inputs.heatPrice * inputs.operatingHours / 1000 : 0;
+                const heatRevenue = products.heat ? (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000000 : 0;
                 const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours);
                 const elecConsumption = inputs.electricalPower * inputs.operatingHours;
                 const electricityRevenue = products.electricity ? Math.max(0, (elecProd - elecConsumption) * inputs.electricityPrice / 1000) : 0;
@@ -2090,10 +2087,8 @@ const PyrolysisCalculator = () => {
                       const co2Certificates = biocharProduction * inputs.lcaFactor * inputs.co2RemovalPrice / 1000;
                       let heatSales = 0;
                       if (products.heat) {
-                        const thermalPower = inputs.plantCapacity * inputs.fuelHeatValue * 0.45;
-                        const totalHeatProduction = thermalPower * inputs.operatingHours;
-                        const soldHeatProduction = totalHeatProduction * (inputs.heatYield / 100);
-                        heatSales = soldHeatProduction * inputs.heatPrice / 1000;
+                        const usableThermalPower = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100);
+                        heatSales = (usableThermalPower * 1000 * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000;
                       }
                       let electricitySales = 0;
                       if (products.electricity) {
