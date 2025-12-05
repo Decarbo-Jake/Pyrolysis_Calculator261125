@@ -1826,6 +1826,19 @@ const PyrolysisCalculator = () => {
                         </div>
                       </>
                     )}
+                    {((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours) >= (inputs.electricalPower * inputs.operatingHours) ? (
+                      <div className="p-2 bg-green-900/30 border border-green-500/30 rounded-lg mt-3">
+                        <p className="text-sm text-green-300 font-semibold">
+                          ✓ {language === 'de' ? 'Der Strombedarf der Anlage kann im Betrieb vollständig gedeckt werden' : 'The electricity demand of the plant can be fully covered during operation'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-2 bg-orange-900/30 border border-orange-500/30 rounded-lg mt-3">
+                        <p className="text-sm text-orange-300 font-semibold">
+                          ⚠️ {language === 'de' ? 'Der Strombedarf der Anlage kann im Betrieb zum Teil gedeckt werden' : 'The electricity demand of the plant can only be partially covered during operation'}
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <div className="p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
                     <p className="text-sm text-yellow-100">
