@@ -1162,7 +1162,7 @@ const PyrolysisCalculator = () => {
                   {language === 'de' ? 'Pyrolyse-Anlagen' : 'Pyrolysis Plants'}
                 </h1>
                 <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-                  {language === 'de' ? 'ROI-Rechner' : 'ROI Calculator'}
+                  {language === 'de' ? 'ROI-Rechner Beta' : 'ROI Calculator Beta'}
                 </h1>
               </div>
 
