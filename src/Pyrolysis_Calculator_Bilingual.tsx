@@ -450,9 +450,8 @@ const PyrolysisCalculator = () => {
     
     // Electricity Revenue (only surplus counted)
     if (products.electricity) {
-      const combustionPower = inputs.plantCapacity * inputs.fuelHeatValue / 1000;
-      const usableThermalPower = combustionPower * inputs.thermalEfficiency / 100;
-      const electricityProduction = usableThermalPower * (electricityYield / 100) * operatingHours;
+      const usableThermalPowerKW = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / 100;
+      const electricityProduction = usableThermalPowerKW * (electricityYield / 100) * operatingHours;
       const grossElectricityConsumption = inputs.electricalPower * operatingHours;
       const surplusElectricity = Math.max(0, electricityProduction - grossElectricityConsumption);
       const electricityRevenue = surplusElectricity * electricityPrice;
@@ -1517,7 +1516,7 @@ const PyrolysisCalculator = () => {
                     <span className="font-bold text-white">
                       {formatNumber(
                         products.electricity
-                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours))
+                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours))
                           : inputs.electricalPower * inputs.operatingHours
                       )} kWh/{language === 'de' ? 'Jahr' : 'year'}
                     </span>
@@ -1527,7 +1526,7 @@ const PyrolysisCalculator = () => {
                     <span className="font-bold text-white">
                       {formatNumber(
                         products.electricity 
-                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours)) * inputs.electricityConsumptionPrice
+                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours)) * inputs.electricityConsumptionPrice
                           : inputs.electricalPower * inputs.operatingHours * inputs.electricityConsumptionPrice
                       )} €/{language === 'de' ? 'Jahr' : 'year'}
                     </span>
@@ -1808,7 +1807,7 @@ const PyrolysisCalculator = () => {
                     <div className="text-sm">
                       <span className="text-gray-400">{t.electricityProduction}: </span>
                       <span className="font-bold text-white">
-                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
+                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
                       </span>
                     </div>
                     <div className="text-sm mt-2">
@@ -1817,23 +1816,23 @@ const PyrolysisCalculator = () => {
                         {formatNumber(inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
                       </span>
                     </div>
-                    {((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours) > (inputs.electricalPower * inputs.operatingHours) && (
+                    {((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours) > (inputs.electricalPower * inputs.operatingHours) && (
                       <>
                         <div className="text-sm mt-2">
                           <span className="text-gray-400">{language === 'de' ? 'Stromüberschuss: ' : 'Electricity Surplus: '}</span>
                           <span className="font-bold text-green-400">
-                            {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
+                            {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
                           </span>
                         </div>
                         <div className="text-sm mt-2">
                           <span className="text-gray-400">{t.electricitySalesRevenue}: </span>
                           <span className="font-bold text-green-400">
-                            {formatNumber(((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice)} €/{language === 'de' ? 'Jahr' : 'year'}
+                            {formatNumber(((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice)} €/{language === 'de' ? 'Jahr' : 'year'}
                           </span>
                         </div>
                       </>
                     )}
-                    {((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours) >= (inputs.electricalPower * inputs.operatingHours) ? (
+                    {((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours) >= (inputs.electricalPower * inputs.operatingHours) ? (
                       <div className="p-2 bg-green-900/30 border border-green-500/30 rounded-lg mt-3">
                         <p className="text-sm text-green-300 font-semibold">
                           ✓ {language === 'de' ? 'Der Strombedarf der Anlage kann im Betrieb vollständig gedeckt werden' : 'The electricity demand of the plant can be fully covered during operation'}
@@ -1955,7 +1954,7 @@ const PyrolysisCalculator = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
               {(() => {
                 const heatRevenue = products.heat ? ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100)) * 1000 * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice / 1000 : 0;
-                const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours);
+                const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours);
                 const elecConsumption = inputs.electricalPower * inputs.operatingHours;
                 const electricityRevenue = products.electricity ? Math.max(0, (elecProd - elecConsumption) * inputs.electricityPrice / 1000) : 0;
                 const bioOilRevenue = products.bioOil ? (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100) * inputs.bioOilPrice / 1000 : 0;
@@ -2092,7 +2091,8 @@ const PyrolysisCalculator = () => {
                       }
                       let electricitySales = 0;
                       if (products.electricity) {
-                        const electricityProduction = annualFeedstock * 4.5 * (inputs.electricityYield / 100) * 1000;
+                        const usableThermalPowerKW = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / 100;
+                        const electricityProduction = usableThermalPowerKW * (inputs.electricityYield / 100) * inputs.operatingHours;
                         electricitySales = electricityProduction * inputs.electricityPrice / 1000;
                       }
                       let bioOilSales = 0;
