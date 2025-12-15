@@ -347,7 +347,7 @@ const PyrolysisCalculator = () => {
     initialInvestment: 3000000,
     feedstockCost: 50,
     laborCost: 50000,
-    maintenanceCost: 500000 * 0.025, // 2.5% of total investment
+    maintenanceCost: 3000000 * 0.025, // 2.5% of initial investment
     biocharYield: 25,
     biocharPrice: 300,
     lcaFactor: 2.4,
@@ -449,9 +449,10 @@ const PyrolysisCalculator = () => {
     }
     
     // Electricity Revenue (only surplus counted)
+    let electricityProduction = 0;
     if (products.electricity) {
       const usableThermalPowerKW = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / 100;
-      const electricityProduction = usableThermalPowerKW * (electricityYield / 100) * operatingHours;
+      electricityProduction = usableThermalPowerKW * (electricityYield / 100) * operatingHours;
       const grossElectricityConsumption = inputs.electricalPower * operatingHours;
       const surplusElectricity = Math.max(0, electricityProduction - grossElectricityConsumption);
       const electricityRevenue = surplusElectricity * electricityPrice;
@@ -466,7 +467,10 @@ const PyrolysisCalculator = () => {
     }
     
     const annualFeedstockCost = annualFeedstock * feedstockCost;
-    const annualElectricityCost = inputs.electricalPower * inputs.operatingHours * inputs.electricityConsumptionPrice;
+    // Electricity costs only for net consumption (gross consumption minus production)
+    const grossElectricityConsumption = inputs.electricalPower * operatingHours;
+    const netElectricityConsumption = Math.max(0, grossElectricityConsumption - electricityProduction);
+    const annualElectricityCost = netElectricityConsumption * inputs.electricityConsumptionPrice;
     const totalAnnualCosts = annualFeedstockCost + laborCost + maintenanceCost + annualElectricityCost;
     const annualCashFlow = annualRevenue - totalAnnualCosts;
     
