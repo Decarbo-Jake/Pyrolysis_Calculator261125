@@ -2042,7 +2042,7 @@ const PyrolysisCalculator = () => {
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis dataKey="year" stroke="#9ca3af" style={{ fontSize: '11px' }} />
                     <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }} labelStyle={{ color: '#f3f4f6' }} formatter={(value) => [`${formatNumber(value)}k €`, t.cumulative]} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }} labelStyle={{ color: '#ffffff' }} formatter={(value) => [`${formatNumber(value)}k €`, t.cumulative]} />
                     <Line type="monotone" dataKey="cumulative" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981', r: 3 }} activeDot={{ r: 5 }} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -2062,7 +2062,7 @@ const PyrolysisCalculator = () => {
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis dataKey="category" stroke="#9ca3af" style={{ fontSize: '10px' }} angle={-20} textAnchor="end" height={40} />
                     <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }} labelStyle={{ color: '#f3f4f6' }} formatter={(value) => `${formatNumber(value || 0)}k €`} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }} labelStyle={{ color: '#ffffff' }} formatter={(value) => `${formatNumber(value || 0)}k €`} />
                     <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                       <Cell fill="#10b981" />
                       <Cell fill="#6ee7b7" />
