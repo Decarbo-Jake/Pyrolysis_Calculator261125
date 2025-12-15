@@ -355,7 +355,7 @@ const PyrolysisCalculator = () => {
     heatYield: 40,
     heatPrice: 0.08,
     heatInvestment: 50000,
-    electricityYield: 25,
+    electricityYield: 18,
     electricityPrice: 0.15,
     electricityInvestment: 500000,
     bioOilYield: 20,
