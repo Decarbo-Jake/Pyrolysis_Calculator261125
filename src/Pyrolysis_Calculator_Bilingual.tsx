@@ -2040,20 +2040,35 @@ const PyrolysisCalculator = () => {
               <div className="w-1 h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded"></div>
               {t.investmentSummary}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="text-gray-400">{t.totalInvestmentLabel}: </span>
-                <span className="font-bold text-white text-lg">{formatNumber(results.totalInvestment || 0)}k €</span>
-              </div>
-              <div>
-                <span className="text-gray-400">{t.annualRevenuesLabel}: </span>
-                <span className="font-bold text-green-400 text-lg">{formatNumber(results.annualRevenue || 0)}k €</span>
-              </div>
-              <div>
-                <span className="text-gray-400">{t.annualCostsLabel}: </span>
-                <span className="font-bold text-red-400 text-lg">{formatNumber(results.annualCosts || 0)}k €</span>
-              </div>
-            </div>
+            {(() => {
+              const grossElectricityConsumption = inputs.electricalPower * inputs.operatingHours;
+              const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours);
+              const netElectricityConsumption = Math.max(0, grossElectricityConsumption - elecProd);
+              const annualElectricityCost = netElectricityConsumption * inputs.electricityConsumptionPrice / 1000;
+              
+              const electricityCostColor = annualElectricityCost === 0 ? 'text-gray-300' : 'text-red-500';
+              
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-400">{t.totalInvestmentLabel}: </span>
+                    <span className="font-bold text-white text-lg">{formatNumber(results.totalInvestment || 0)}k €</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">{t.annualRevenuesLabel}: </span>
+                    <span className="font-bold text-green-400 text-lg">{formatNumber(results.annualRevenue || 0)}k €</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">{t.annualCostsLabel}: </span>
+                    <span className="font-bold text-red-400 text-lg">{formatNumber(results.annualCosts || 0)}k €</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">{language === 'de' ? 'Jährliche Stromkosten' : 'Annual Electricity Costs'}: </span>
+                    <span className={`font-bold text-lg ${electricityCostColor}`}>{formatNumber(annualElectricityCost)}k €</span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* CO2 Entnahme KPIs */}
