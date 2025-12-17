@@ -2015,12 +2015,12 @@ const PyrolysisCalculator = () => {
                 const feedstockClass = 'bg-gradient-to-br from-orange-600 to-orange-700 border border-orange-500';
                 const laborClass = 'bg-gradient-to-br from-pink-600 to-pink-700 border border-pink-500';
                 const maintenanceClass = 'bg-gradient-to-br from-red-600 to-red-700 border border-red-500';
-                const electricityClass = netElectricityConsumption === 0 ? 'bg-gradient-to-br from-gray-600 to-gray-700 border border-gray-500' : 'bg-gradient-to-br from-yellow-600 to-yellow-700 border border-yellow-500';
+                const electricityClass = annualElectricityCost === 0 ? 'bg-gradient-to-br from-green-600 to-green-700 border border-green-500' : 'bg-gradient-to-br from-yellow-600 to-yellow-700 border border-yellow-500';
                 
                 const feedstockText = 'text-xs font-medium text-orange-100 mb-2';
                 const laborText = 'text-xs font-medium text-pink-100 mb-2';
                 const maintenanceText = 'text-xs font-medium text-red-100 mb-2';
-                const electricityText = netElectricityConsumption === 0 ? 'text-xs font-medium text-gray-300 mb-2' : 'text-xs font-medium text-yellow-100 mb-2';
+                const electricityText = annualElectricityCost === 0 ? 'text-xs font-medium text-green-100 mb-2' : 'text-xs font-medium text-yellow-100 mb-2';
                 
                 return (
                   <>
