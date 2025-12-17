@@ -2009,25 +2009,26 @@ const PyrolysisCalculator = () => {
                 const grossElectricityConsumption = inputs.electricalPower * inputs.operatingHours;
                 const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours);
                 const netElectricityConsumption = Math.max(0, grossElectricityConsumption - elecProd);
-                const annualElectricityCost = netElectricityConsumption * inputs.electricityConsumptionPrice / 1000;
+                const grossAnnualElectricityCost = grossElectricityConsumption * inputs.electricityConsumptionPrice / 1000;
+                const netAnnualElectricityCost = netElectricityConsumption * inputs.electricityConsumptionPrice / 1000;
                 
                 const baseClass = 'p-4 rounded-lg shadow-lg';
                 const feedstockClass = 'bg-gradient-to-br from-orange-600 to-orange-700 border border-orange-500';
                 const laborClass = 'bg-gradient-to-br from-pink-600 to-pink-700 border border-pink-500';
                 const maintenanceClass = 'bg-gradient-to-br from-red-600 to-red-700 border border-red-500';
-                const electricityClass = annualElectricityCost === 0 ? 'bg-gradient-to-br from-gray-600 to-gray-700 border border-gray-500' : 'bg-gradient-to-br from-red-600 to-red-700 border border-red-500';
+                const electricityClass = grossAnnualElectricityCost === 0 ? 'bg-gradient-to-br from-gray-600 to-gray-700 border border-gray-500' : 'bg-gradient-to-br from-red-600 to-red-700 border border-red-500';
                 
                 const feedstockText = 'text-xs font-medium text-orange-100 mb-2';
                 const laborText = 'text-xs font-medium text-pink-100 mb-2';
                 const maintenanceText = 'text-xs font-medium text-red-100 mb-2';
-                const electricityText = annualElectricityCost === 0 ? 'text-xs font-medium text-gray-300 mb-2' : 'text-xs font-medium text-red-100 mb-2';
+                const electricityText = grossAnnualElectricityCost === 0 ? 'text-xs font-medium text-gray-300 mb-2' : 'text-xs font-medium text-red-100 mb-2';
                 
                 return (
                   <>
                     <div className={`${feedstockClass} ${baseClass}`}><h3 className={feedstockText}>{language === 'de' ? 'Rohstoffkosten' : 'Feedstock Costs'}</h3><p className="text-2xl font-bold text-white">{formatNumber(annualFeedstockCost / 1000)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
                     <div className={`${laborClass} ${baseClass}`}><h3 className={laborText}>{language === 'de' ? 'Arbeitskosten' : 'Labor Costs'}</h3><p className="text-2xl font-bold text-white">{formatNumber(laborCost / 1000)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
                     <div className={`${maintenanceClass} ${baseClass}`}><h3 className={maintenanceText}>{language === 'de' ? 'Wartungskosten' : 'Maintenance Costs'}</h3><p className="text-2xl font-bold text-white">{formatNumber(maintenanceCost / 1000)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
-                    <div className={`${electricityClass} ${baseClass}`}><h3 className={electricityText}>{language === 'de' ? 'Stromkosten' : 'Electricity Costs'}</h3><p className="text-2xl font-bold text-white">{formatNumber(annualElectricityCost)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
+                    <div className={`${electricityClass} ${baseClass}`}><h3 className={electricityText}>{language === 'de' ? 'Stromkosten' : 'Electricity Costs'}</h3><p className="text-2xl font-bold text-white">{formatNumber(grossAnnualElectricityCost)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
                   </>
                 );
               })()}
