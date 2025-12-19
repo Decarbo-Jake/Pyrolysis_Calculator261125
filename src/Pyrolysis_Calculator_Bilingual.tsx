@@ -1215,29 +1215,31 @@ const PyrolysisCalculator = () => {
 
       {/* Main Content - Only shown after cookie consent */}
       {cookieConsent && (
-      <>
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <a href="https://www.decarbo-engineering.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                <img src={decarboLogo} alt="Decarbo Engineering" className="h-24 w-auto cursor-pointer" />
-              </a>
+        <>
+          {/* Header */}
+          <div className="bg-gray-900 border-b border-gray-700 shadow-xl">
+            <div className="max-w-7xl mx-auto px-6 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <a href="https://www.decarbo-engineering.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                    <img src={decarboLogo} alt="Decarbo Engineering" className="h-24 w-auto cursor-pointer" />
+                  </a>
+                </div>
+                <button onClick={() => setLanguage(language === 'de' ? 'en' : 'de')} className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors border border-gray-700">
+                  <Globe className="w-5 h-5" />
+                  <span className="font-medium">{language === 'de' ? 'DE' : 'EN'}</span>
+                </button>
+              </div>
             </div>
-            <button onClick={() => setLanguage(language === 'de' ? 'en' : 'de')} className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors border border-gray-700">
-              <Globe className="w-5 h-5" />
-              <span className="font-medium">{language === 'de' ? 'DE' : 'EN'}</span>
-            </button>
           </div>
-        </div>
-      </div>
 
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          {/* Main Hero Content - Left Aligned with Image Right */}
-          <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
-            {/* Left Content */}
-            <div className="flex-1">
+          {/* Hero Section */}
+          <div className="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-gray-700">
+            <div className="max-w-7xl mx-auto px-6 py-16">
+              {/* Main Hero Content - Left Aligned with Image Right */}
+              <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
+                {/* Left Content */}
+                <div className="flex-1">
               {/* Title Section */}
               <div className="mb-6">
                 <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-2">
@@ -2318,6 +2320,7 @@ const PyrolysisCalculator = () => {
           </div>
         </div>
       </div>
+        </>
       )}
     </div>
   );
