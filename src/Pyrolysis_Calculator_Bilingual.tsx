@@ -1137,65 +1137,30 @@ const PyrolysisCalculator = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Cookie Consent Banner - Small Bottom Bar */}
-      {!cookieConsent && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-blue-500/30 shadow-2xl z-50 p-4">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex-1">
-                <p className="text-sm text-gray-300 mb-2">
-                  {language === 'de'
-                    ? '🔒 Diese Website verwendet Cookies und ähnliche Technologien, um Ihre Erfahrung zu verbessern. Durch die Nutzung stimmen Sie unserer '
-                    : '🔒 This website uses cookies and similar technologies to enhance your experience. By using it, you agree to our '
-                  }
-                  <a 
-                    href={language === 'de' ? 'https://www.decarbo-engineering.com/datenschutz' : 'https://www.decarbo-engineering.com/en/datenschutz'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 underline"
-                  >
-                    {language === 'de' ? 'Datenschutzerklärung' : 'Privacy Policy'}
-                  </a>
-                  {language === 'de' ? ' zu.' : '.'}
-                </p>
-              </div>
-              <button
-                onClick={() => setCookieConsent(true)}
-                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-lg transition-all shadow-lg whitespace-nowrap flex-shrink-0"
-              >
-                {language === 'de' ? '✓ Akzeptieren' : '✓ Accept'}
-              </button>
+      {/* Header */}
+      <div className="bg-gray-900 border-b border-gray-700 shadow-xl">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <a href="https://www.decarbo-engineering.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                <img src={decarboLogo} alt="Decarbo Engineering" className="h-24 w-auto cursor-pointer" />
+              </a>
             </div>
+            <button onClick={() => setLanguage(language === 'de' ? 'en' : 'de')} className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors border border-gray-700">
+              <Globe className="w-5 h-5" />
+              <span className="font-medium">{language === 'de' ? 'DE' : 'EN'}</span>
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Main Content - Only shown after cookie consent */}
-      {cookieConsent && (
-        <>
-          {/* Header */}
-          <div className="bg-gray-900 border-b border-gray-700 shadow-xl">
-            <div className="max-w-7xl mx-auto px-6 py-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <a href="https://www.decarbo-engineering.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                    <img src={decarboLogo} alt="Decarbo Engineering" className="h-24 w-auto cursor-pointer" />
-                  </a>
-                </div>
-                <button onClick={() => setLanguage(language === 'de' ? 'en' : 'de')} className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors border border-gray-700">
-                  <Globe className="w-5 h-5" />
-                  <span className="font-medium">{language === 'de' ? 'DE' : 'EN'}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Hero Section */}
-          <div className="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-gray-700">
-            <div className="max-w-7xl mx-auto px-6 py-16">
-              {/* Main Hero Content - Left Aligned with Image Right */}
-              <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
-                {/* Left Content */}
-                <div className="flex-1">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          {/* Main Hero Content - Left Aligned with Image Right */}
+          <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
+            {/* Left Content */}
+            <div className="flex-1">
               {/* Title Section */}
               <div className="mb-6">
                 <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-2">
@@ -2276,7 +2241,38 @@ const PyrolysisCalculator = () => {
           </div>
         </div>
       </div>
-        </>
+
+      {/* Cookie Consent Banner - Small Bottom Bar as Overlay */}
+      {!cookieConsent && (
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-blue-500/30 shadow-2xl z-50 p-4">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex-1">
+                <p className="text-sm text-gray-300 mb-2">
+                  {language === 'de'
+                    ? '🔒 Diese Website verwendet Cookies und ähnliche Technologien, um Ihre Erfahrung zu verbessern. Durch die Nutzung stimmen Sie unserer '
+                    : '🔒 This website uses cookies and similar technologies to enhance your experience. By using it, you agree to our '
+                  }
+                  <a 
+                    href={language === 'de' ? 'https://www.decarbo-engineering.com/datenschutz' : 'https://www.decarbo-engineering.com/en/datenschutz'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 underline"
+                  >
+                    {language === 'de' ? 'Datenschutzerklärung' : 'Privacy Policy'}
+                  </a>
+                  {language === 'de' ? ' zu.' : '.'}
+                </p>
+              </div>
+              <button
+                onClick={() => setCookieConsent(true)}
+                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-lg transition-all shadow-lg whitespace-nowrap flex-shrink-0"
+              >
+                {language === 'de' ? '✓ Akzeptieren' : '✓ Accept'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
