@@ -1907,8 +1907,8 @@ const PyrolysisCalculator = () => {
                   <div className="p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
                     <p className="text-sm text-purple-100">
                       {language === 'de' 
-                        ? '⚠️ Hinweis: Bei Bio-Öl-Produktion kann weniger bis kein Strom produziert werden und nur limitiert Restwärme genutzt werden. Achten Sie darauf, dass Ihre Parameter diese Konkurrenzsituation um Energie realistisch abbilden.'
-                        : '⚠️ Note: When producing bio-oil, little to no electricity can be generated and only limited residual heat can be utilized. Make sure your parameters realistically reflect this competition for energy.'
+                        ? '⚠️ Hinweis: Bei Bio-Öl-Produktion kann weniger bis kein Strom produziert werden und nur limitiert Restwärme genutzt werden. Passen Sie die Lohnkosten manuell an, um die zusätzliche Komplexität der Bio-Öl-Produktion abzubilden. Die Wartungskosten werden automatisch angepasst. Achten Sie darauf, dass Ihre Parameter diese Konkurrenzsituation um Energie realistisch abbilden.'
+                        : '⚠️ Note: When producing bio-oil, little to no electricity can be generated and only limited residual heat can be utilized. Please adjust labor costs manually to reflect the additional complexity of bio-oil production. Maintenance costs are adjusted automatically. Make sure your parameters realistically reflect this competition for energy.'
                       }
                     </p>
                   </div>
