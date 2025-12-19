@@ -1479,7 +1479,7 @@ const PyrolysisCalculator = () => {
                   <label htmlFor="labor-cost" className="block text-sm font-medium text-orange-300 mb-2">
                     {t.laborCost}: <span className="font-bold text-white">{formatNumber(inputs.laborCost)} {t.perYear}</span>
                   </label>
-                  <input id="labor-cost" name="laborCost" type="range" min="10000" max="200000" step="1000" value={inputs.laborCost} onChange={(e) => handleInputChange('laborCost', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+                  <input id="labor-cost" name="laborCost" type="range" min="0" max="500000" step="1000" value={inputs.laborCost} onChange={(e) => handleInputChange('laborCost', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
