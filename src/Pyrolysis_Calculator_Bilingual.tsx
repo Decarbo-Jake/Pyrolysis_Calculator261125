@@ -326,6 +326,7 @@ const PyrolysisCalculator = () => {
   const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '4EfMLLsNmJhAeX53T';
   
   const [language, setLanguage] = useState('de');
+  const [cookieConsent, setCookieConsent] = useState(false);
   const t = translations[language];
   
   const [products, setProducts] = useState({
@@ -1135,8 +1136,86 @@ const PyrolysisCalculator = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Header */}
-      <div className="bg-gray-900 border-b border-gray-700 shadow-xl">
+      {/* Cookie Consent Banner */}
+      {!cookieConsent && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-blue-500/30 rounded-xl shadow-2xl max-w-2xl w-full p-8">
+            <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+              <div className="w-1 h-8 bg-gradient-to-b from-blue-400 to-blue-600 rounded"></div>
+              {language === 'de' ? '🔒 Datenschutz & Cookies' : '🔒 Data Protection & Cookies'}
+            </h2>
+            
+            <p className="text-gray-300 mb-4 leading-relaxed">
+              {language === 'de' 
+                ? 'Wir verwenden Cookies und ähnliche Technologien, um Ihre Erfahrung zu verbessern und Ihre Daten zu schützen. Durch die Nutzung dieser Anwendung akzeptieren Sie unsere Datenschutzerklärung.'
+                : 'We use cookies and similar technologies to improve your experience and protect your data. By using this application, you accept our privacy policy.'
+              }
+            </p>
+
+            <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 mb-6">
+              <p className="text-sm text-gray-400 mb-4">
+                {language === 'de'
+                  ? '📋 Unsere Datenschutzerklärung:'
+                  : '📋 Our Privacy Policy:'
+                }
+              </p>
+              <div className="flex gap-4">
+                <a 
+                  href="https://www.decarbo-engineering.com/datenschutz" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 px-4 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors text-center font-medium"
+                >
+                  {language === 'de' ? 'Deutsch' : 'German'}
+                </a>
+                <a 
+                  href="https://www.decarbo-engineering.com/en/datenschutz" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 px-4 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors text-center font-medium"
+                >
+                  {language === 'de' ? 'English' : 'English'}
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <input 
+                type="checkbox" 
+                id="cookie-accept"
+                checked={cookieConsent}
+                onChange={(e) => setCookieConsent(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-600 bg-gray-700 accent-blue-500 cursor-pointer mt-1 flex-shrink-0"
+              />
+              <label htmlFor="cookie-accept" className="text-sm text-gray-300 cursor-pointer flex-1">
+                {language === 'de'
+                  ? 'Ich akzeptiere die Datenschutzerklärung und stimme der Verarbeitung meiner Daten zu.'
+                  : 'I accept the privacy policy and consent to the processing of my data.'
+                }
+              </label>
+            </div>
+
+            <button
+              onClick={() => setCookieConsent(true)}
+              disabled={!cookieConsent}
+              className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all shadow-lg disabled:opacity-50"
+            >
+              {language === 'de' ? '✓ Akzeptieren & Fortfahren' : '✓ Accept & Continue'}
+            </button>
+
+            <p className="text-xs text-gray-500 text-center mt-4">
+              {language === 'de'
+                ? 'Die Akzeptanz ist erforderlich, um die Anwendung zu nutzen.'
+                : 'Acceptance is required to use the application.'
+              }
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content - Only shown after cookie consent */}
+      {cookieConsent && (
+      <>
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -2239,6 +2318,7 @@ const PyrolysisCalculator = () => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };
