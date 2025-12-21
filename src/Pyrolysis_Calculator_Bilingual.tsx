@@ -697,24 +697,32 @@ const PyrolysisCalculator = () => {
       let yPosition = margin;
       
       // Header function with logo
-      const addHeader = async () => {
+      const addHeader = () => {
         pdf.setFillColor(17, 24, 39);
         pdf.rect(0, 0, pageWidth, 50, 'F');
         
-        // Add logo image
-        try {
-          const img = new Image();
-          img.src = decarboLogo;
-          await new Promise((resolve) => {
-            img.onload = () => {
-              // Logo dimensions: 30mm height, proportional width
-              pdf.addImage(decarboLogo, 'PNG', margin, 8, 30, 30);
-              resolve(undefined);
-            };
-          });
-        } catch (err) {
-          console.warn('Logo could not be added to PDF:', err);
-        }
+        // Add logo image - load and convert to data URL
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = logoImg.width;
+            canvas.height = logoImg.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(logoImg, 0, 0);
+              const imgData = canvas.toDataURL('image/png');
+              pdf.addImage(imgData, 'PNG', margin, 8, 30, 30);
+            }
+          } catch (err) {
+            console.warn('Logo could not be added to PDF:', err);
+          }
+        };
+        logoImg.onerror = () => {
+          console.warn('Logo could not be loaded');
+        };
+        logoImg.src = decarboLogo;
         
         // Text on the right side of logo
         pdf.setTextColor(255, 255, 255);
@@ -731,7 +739,7 @@ const PyrolysisCalculator = () => {
         return 55;
       };
       
-      yPosition = await addHeader();
+      yPosition = addHeader();
       
       // Title - "Pyrolyse-Anlagen Wirtschaftlichkeitsrechner" (0,5cm = ~3mm tiefer)
       pdf.setFontSize(18);
