@@ -696,24 +696,42 @@ const PyrolysisCalculator = () => {
       const contentWidth = pageWidth - 2 * margin;
       let yPosition = margin;
       
-      // Header function
-      const addHeader = () => {
+      // Header function with logo
+      const addHeader = async () => {
         pdf.setFillColor(17, 24, 39);
         pdf.rect(0, 0, pageWidth, 50, 'F');
+        
+        // Add logo image
+        try {
+          const img = new Image();
+          img.src = decarboLogo;
+          await new Promise((resolve) => {
+            img.onload = () => {
+              // Logo dimensions: 30mm height, proportional width
+              pdf.addImage(decarboLogo, 'PNG', margin, 8, 30, 30);
+              resolve(undefined);
+            };
+          });
+        } catch (err) {
+          console.warn('Logo could not be added to PDF:', err);
+        }
+        
+        // Text on the right side of logo
         pdf.setTextColor(255, 255, 255);
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(20);
-        pdf.text('DECARBO-ENGINEERING', margin, 18);
+        pdf.setFontSize(18);
+        pdf.text('DECARBO-ENGINEERING', margin + 35, 18);
         pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(14);
-        pdf.text('Enabling Net-Zero', margin, 27);
+        pdf.setFontSize(12);
+        pdf.text('Enabling Net-Zero', margin + 35, 27);
+        
         pdf.setDrawColor(34, 197, 94);
         pdf.setLineWidth(0.5);
         pdf.line(margin, 42, pageWidth - margin, 42);
         return 55;
       };
       
-      yPosition = addHeader();
+      yPosition = await addHeader();
       
       // Title - "Pyrolyse-Anlagen Wirtschaftlichkeitsrechner" (0,5cm = ~3mm tiefer)
       pdf.setFontSize(18);
