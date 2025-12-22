@@ -696,12 +696,12 @@ const PyrolysisCalculator = () => {
       const contentWidth = pageWidth - 2 * margin;
       let yPosition = margin;
       
-      // Header function with logo
+      // Header function with logo only (no text, maintains aspect ratio)
       const addHeader = () => {
         pdf.setFillColor(17, 24, 39);
         pdf.rect(0, 0, pageWidth, 50, 'F');
         
-        // Add logo image - load and convert to data URL
+        // Add logo image - load and convert to data URL with correct aspect ratio
         const logoImg = new Image();
         logoImg.crossOrigin = 'anonymous';
         logoImg.onload = () => {
@@ -713,7 +713,12 @@ const PyrolysisCalculator = () => {
             if (ctx) {
               ctx.drawImage(logoImg, 0, 0);
               const imgData = canvas.toDataURL('image/png');
-              pdf.addImage(imgData, 'PNG', margin, 8, 30, 30);
+              // Logo dimensions: 40mm height, width calculated to maintain aspect ratio
+              const logoHeight = 40;
+              const logoWidth = (logoImg.width / logoImg.height) * logoHeight;
+              const logoX = (pageWidth - logoWidth) / 2; // Center horizontally
+              const logoY = 5; // Top position
+              pdf.addImage(imgData, 'PNG', logoX, logoY, logoWidth, logoHeight);
             }
           } catch (err) {
             console.warn('Logo could not be added to PDF:', err);
@@ -724,18 +729,9 @@ const PyrolysisCalculator = () => {
         };
         logoImg.src = decarboLogo;
         
-        // Text on the right side of logo
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(18);
-        pdf.text('DECARBO-ENGINEERING', margin + 35, 18);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(12);
-        pdf.text('Enabling Net-Zero', margin + 35, 27);
-        
         pdf.setDrawColor(34, 197, 94);
         pdf.setLineWidth(0.5);
-        pdf.line(margin, 42, pageWidth - margin, 42);
+        pdf.line(margin, 48, pageWidth - margin, 48);
         return 55;
       };
       
