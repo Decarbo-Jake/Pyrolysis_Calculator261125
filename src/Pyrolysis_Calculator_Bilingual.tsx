@@ -741,7 +741,7 @@ const PyrolysisCalculator = () => {
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(31, 41, 55);
-      const titleText = language === 'de' ? 'Pyrolyse-Anlagen Wirtschaftlichkeitsrechner' : 'Pyrolysis Plant Economic Calculator';
+      const titleText = language === 'de' ? 'Pyrolyse-Anlagen Wirtschaftlichkeitsrechner' : 'Pyrolysis Plant ROI Calculator Beta';
       pdf.text(titleText, margin, yPosition + 3.5);
       yPosition += 13;
       
