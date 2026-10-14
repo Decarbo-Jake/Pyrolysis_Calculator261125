@@ -1,0 +1,214 @@
+// Content for the Expectations Check ("Why some biochar projects struggle to meet expectations").
+// Kept as plain data (no React) so it can be reused for LinkedIn posts, newsletters or the PDF report.
+// Wording approved by Decarbo Engineering, 14.10.2026.
+
+import { Language } from '../../i18n';
+import { PyrolysisInputs } from '../../calc/pyrolysisModel';
+
+export interface ExternalLink {
+  label: string;
+  url: string;
+}
+
+export interface CheckQuestion {
+  topic: string;
+  question: string;
+  struggle: string;
+  evidence: string;
+  links?: { label: string; items: ExternalLink[]; more: string };
+}
+
+export interface ExpectationsCheckContent {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  struggleLabel: string;
+  evidenceLabel: string;
+  clarified: string;
+  progress: string;          // {n} clarified of {total}
+  checkSetting: string;
+  relatedSetting: string;
+  settingHidden: string;
+  ctaOpenOne: string;
+  ctaOpenMany: string;       // {n} open points
+  ctaOffer: string;
+  ctaDone: string;
+  ctaButton: string;
+  ctaButtonDone: string;
+  heroTeaser: string;
+  questions: CheckQuestion[];
+}
+
+const dmrvProviders: ExternalLink[] = [
+  { label: "BlueLayer", url: "https://bluelayer.io" },
+  { label: "Cula", url: "https://www.cula.tech" },
+  { label: "Mangrove", url: "https://mangrovesystems.com" }
+];
+
+// Calculator setting each question relates to (same order as the questions); null = not modelled
+export const questionSettings: (keyof PyrolysisInputs | null)[] = [
+  'feedstockCost',
+  'biocharPrice',
+  'heatYield',
+  'operatingHours',
+  'certificateFeeRate',
+  'lcaFactor',
+  null,
+  'biocharYield',
+  'plantCapacity'
+];
+
+export const expectationsCheckContent: Record<Language, ExpectationsCheckContent> = {
+  de: {
+    eyebrow: "Erwartungs-Check · Vor der Investition",
+    title: "Warum manche Biochar-Projekte hinter den Erwartungen zurückbleiben",
+    intro: "Wenn Biochar-Projekte hinter den Erwartungen zurückbleiben, liegt das oft an Annahmen, die nie überprüft wurden – zur Biomasse, zu den Abnehmern und zur Technik selbst. Diese neun Fragen sollten Sie beantworten können, bevor Sie investieren.",
+    struggleLabel: "Wo Projekte hier an Grenzen stoßen",
+    evidenceLabel: "Welche Nachweise Sie verlangen sollten",
+    clarified: "Für mein Projekt geklärt",
+    progress: "{n} von {total} Punkten für mein Projekt geklärt",
+    checkSetting: "Einstellung prüfen ↑",
+    relatedSetting: "Zugehörige Einstellung",
+    settingHidden: "Diese Einstellung erscheint, sobald das zugehörige Produkt oben aktiviert ist.",
+    ctaOpenOne: "1 Punkt ist noch offen.",
+    ctaOpenMany: "{n} Punkte sind noch offen.",
+    ctaOffer: "Eine Technologie- und Projektbewertung durch Decarbo Engineering hilft, sie vor der Investition zu klären.",
+    ctaDone: "Alle Punkte geklärt. Sprechen Sie uns an, wenn Sie Ihre Annahmen unabhängig prüfen lassen möchten.",
+    ctaButton: "Offene Punkte in meine Anfrage übernehmen",
+    ctaButtonDone: "Kontakt aufnehmen",
+    heroTeaser: "→ 9 Fragen, die Sie vor der Investition klären sollten",
+    questions: [
+      {
+        topic: "Rohstoff",
+        question: "Ist die Biomasse für die gesamte Projektlaufzeit gesichert – in Menge, Qualität, Wassergehalt und Preis?",
+        struggle: "Rohstoffpreise und -verfügbarkeit ändern sich, sobald Wettbewerber auftreten. Schwankender Wassergehalt oder Fremdstoffe senken Durchsatz und Biochar-Qualität.",
+        evidence: "Langfristige Lieferverträge, Analysen mehrerer Chargen, ein Plan B für Ersatzbiomasse."
+      },
+      {
+        topic: "Biochar-Abnahme",
+        question: "Wer kauft die Biochar, zu welchem Preis und für welche Anwendung?",
+        struggle: "Ohne Abnehmer stapelt sich die Biochar auf dem Hof. Oft muss erst ein passendes Produkt entwickelt werden, in dem die Biochar eingesetzt wird – etwa Erdensubstrate, Zuschlagstoff in Beton oder Kunststoff oder Graphitersatz. Dieser Aufwand wird häufig unterschätzt. Außerdem ist nicht jede Anwendung als dauerhafte Kohlenstoffsenke anerkannt – das entscheidet über die Zertifikatserlöse.",
+        evidence: "Absichtserklärungen oder Abnahmeverträge, ein Plan für Produktentwicklung und Anwendungstests, Logistik bis zum Endnutzer."
+      },
+      {
+        topic: "Wärmeabnahme",
+        question: "Gibt es überhaupt einen Wärmeabnehmer – auf welchem Temperaturniveau, und ganzjährig oder nur im Winter?",
+        struggle: "Zuerst muss geklärt sein, ob Wärme direkt thermisch genutzt werden kann und ob das Temperaturniveau zum Bedarf passt, etwa Heizwasser oder Prozessdampf. Viele Business Cases rechnen zudem mit voller Wärmeabnahme über alle Volllaststunden. In der Realität fehlt im Sommer der Bedarf, und die Erlöse sinken deutlich.",
+        evidence: "Benötigte Temperaturniveaus, Lastgänge des Abnehmers über ein ganzes Jahr, Wärmeliefervertrag, Konzept für Überschusswärme."
+      },
+      {
+        topic: "Volllaststunden",
+        question: "Sind die angenommenen Volllaststunden realistisch – auch im ersten Betriebsjahr?",
+        struggle: "Inbetriebnahme, Wartung, Störungen und Rohstoffengpässe reduzieren die Laufzeit. Außerdem hängen die Volllaststunden von der Wärmeabnahme ab: Fehlt der Wärmebedarf, wird die Anlage gedrosselt oder abgeschaltet. Schon 1.000 Stunden weniger können die Amortisation um Jahre verschieben.",
+        evidence: "Betriebsdaten von Referenzanlagen, Verfügbarkeitsgarantie des Herstellers, Abgleich mit dem Lastgang des Wärmeabnehmers, konservative Hochlaufkurve."
+      },
+      {
+        topic: "Zertifizierung",
+        question: "Nach welchem Standard wird zertifiziert, und ist der Weg bis zum verifizierten Zertifikat geklärt?",
+        struggle: "Zertifizierung dauert länger und kostet mehr als erwartet. Fehlende Nachverfolgung der Biochar bis zur Anwendung kann Zertifikate ungültig machen.",
+        evidence: "Gewählter Standard (z. B. EBC/WBC C-Sink, Isometric, Puro.earth, Rainbow oder Verra VM0044), Zeitplan, Kostenaufstellung für dMRV und Handel."
+      },
+      {
+        topic: "LCA",
+        question: "Basiert die CO₂-Senkenleistung auf einer projektspezifischen Ökobilanz – oder auf einem Pauschalwert?",
+        struggle: "Transportwege, Trocknung und Strombezug können den LCA-Faktor deutlich senken. Ein zu optimistischer Wert überschätzt Zertifikatsmenge und Erlöse.",
+        evidence: "Projektspezifische LCA nach anerkanntem Standard, offengelegte Annahmen zu Transport und Energie. Für die digitale Messung, Berichterstattung und Verifizierung (dMRV) gibt es viele Anbieter.",
+        links: { label: "dMRV-Anbieter (Auswahl, alphabetisch)", items: dmrvProviders, more: "und weitere" }
+      },
+      {
+        topic: "Genehmigung",
+        question: "Sind Genehmigungen, Emissionsgrenzwerte und Ausbringungsregeln für Standort und Rohstoff geklärt?",
+        struggle: "Genehmigungsverfahren dauern oft länger als geplant. Biomassen, die mit einem Abfallschlüssel belegt sind (z. B. Altholz oder Grünschnitt), unterliegen dem Abfallrecht und strengeren Regeln für Verwertung und Ausbringung.",
+        evidence: "Abstimmung mit der Genehmigungsbehörde, Emissionsprognose, rechtliche Prüfung der Biochar-Verwertung."
+      },
+      {
+        topic: "Technologie",
+        question: "Läuft die Technologie bereits mit genau diesem Rohstoff in vergleichbarer Größe?",
+        struggle: "Eine Anlage, die mit Holzhackschnitzeln funktioniert, läuft nicht automatisch mit Stroh oder Gärresten. Fehlender Service vor Ort verlängert jeden Stillstand.",
+        evidence: "Referenzanlagen mit gleichem Rohstoff, Leistungsgarantien, Servicevertrag und Ersatzteilverfügbarkeit."
+      },
+      {
+        topic: "Anlagenleistung & Qualität",
+        question: "Erreicht die Anlage ihre Nennkapazität im Dauerbetrieb – und das in der zugesagten Biochar-Qualität?",
+        struggle: "Viele Anlagen, besonders mit Nennkapazitäten über 2 t/h, erreichen ihre Nennleistung in der Praxis nicht. Ursache sind oft eine falsche Auslegung des Drehrohrofens und weitere technologiespezifische Konstruktionsprobleme. Fehlt Kapazität, fehlen Biochar, Zertifikate und Wärme – der Business Case gerät unter Druck.",
+        evidence: "Eine Technologiebewertung vor jedem Projekt, um die am besten passende Technologie zu finden und fundiert zu entscheiden: Betriebsdaten von Referenzanlagen in vergleichbarer Größe, Leistungs- und Qualitätsgarantien im Liefervertrag, ein Abnahmetest bei Nennlast."
+      }
+    ]
+  },
+  en: {
+    title: "Why some biochar projects struggle to meet expectations",
+    intro: "When biochar projects fall short of expectations, it is often because of assumptions nobody checked – about the biomass, the buyers and the technology itself. You should be able to answer these nine questions before you invest.",
+    eyebrow: "Expectations Check · Before you invest",
+    struggleLabel: "Where projects struggle",
+    evidenceLabel: "What evidence to ask for",
+    clarified: "Clarified for my project",
+    progress: "{n} of {total} points clarified for my project",
+    checkSetting: "Check this setting ↑",
+    relatedSetting: "Related setting",
+    settingHidden: "This setting appears once the related product is activated above.",
+    ctaOpenOne: "1 point is still open.",
+    ctaOpenMany: "{n} points are still open.",
+    ctaOffer: "A technology and project evaluation by Decarbo Engineering helps clarify them before you invest.",
+    ctaDone: "All points clarified. Get in touch if you'd like an independent check of your assumptions.",
+    ctaButton: "Add open points to my request",
+    ctaButtonDone: "Get in touch",
+    heroTeaser: "→ 9 questions to clarify before you invest",
+    questions: [
+      {
+        topic: "Feedstock",
+        question: "Is the biomass secured for the full project lifetime – in quantity, quality, moisture content and price?",
+        struggle: "Feedstock prices and availability change as soon as competitors appear. Fluctuating moisture or contaminants reduce throughput and biochar quality.",
+        evidence: "Long-term supply contracts, analyses of several batches, a plan B for substitute biomass."
+      },
+      {
+        topic: "Biochar offtake",
+        question: "Who buys the biochar, at what price, and for which application?",
+        struggle: "Without buyers, biochar piles up on site. Often a suitable product has to be developed first – such as soil substrates, an additive in concrete or plastics, or a graphite substitute. This effort is often underestimated. Also, not every application is recognised as a permanent carbon sink – which determines certificate revenue.",
+        evidence: "Letters of intent or offtake contracts, a plan for product development and application trials, logistics to the end user."
+      },
+      {
+        topic: "Heat offtake",
+        question: "Is there a heat customer at all – at what temperature level, and year-round or only in winter?",
+        struggle: "First you need to know whether the heat can be used directly and whether its temperature level matches the demand, such as hot water or process steam. Many business cases also assume all heat is sold across all full-load hours. In reality, summer demand is missing and revenue drops significantly.",
+        evidence: "Required temperature levels, the customer's load profile over a full year, a heat supply contract, a concept for surplus heat."
+      },
+      {
+        topic: "Full-load hours",
+        question: "Are the assumed full-load hours realistic – including in the first year of operation?",
+        struggle: "Commissioning, maintenance, breakdowns and feedstock shortages reduce run time. Full-load hours also depend on heat offtake: without heat demand, the plant is throttled or shut down. Just 1,000 fewer hours can push payback back by years.",
+        evidence: "Operating data from reference plants, the manufacturer's availability guarantee, a check against the heat customer's load profile, a conservative ramp-up curve."
+      },
+      {
+        topic: "Certification",
+        question: "Which standard will certify the project, and is the path to a verified certificate clear?",
+        struggle: "Certification takes longer and costs more than expected. Missing tracking of the biochar to its final application can invalidate certificates.",
+        evidence: "Chosen standard (e.g. EBC/WBC C-Sink, Isometric, Puro.earth, Rainbow or Verra VM0044), timeline, cost breakdown for dMRV and trading."
+      },
+      {
+        topic: "LCA",
+        question: "Is the CO₂ removal based on a project-specific life cycle assessment – or on a generic value?",
+        struggle: "Transport distances, drying and grid electricity can lower the LCA factor significantly. An optimistic value overstates certificate volume and revenue.",
+        evidence: "A project-specific LCA under a recognised standard, disclosed assumptions on transport and energy. Many providers offer digital measurement, reporting and verification (dMRV).",
+        links: { label: "dMRV providers (selection, alphabetical)", items: dmrvProviders, more: "and others" }
+      },
+      {
+        topic: "Permits",
+        question: "Are permits, emission limits and application rules clear for the site and the feedstock?",
+        struggle: "Permitting often takes longer than planned. Biomass classified as waste with a waste code (e.g. waste wood or green cuttings) falls under waste law and stricter rules on use and application.",
+        evidence: "Early alignment with the permitting authority, an emissions forecast, a legal review of biochar use."
+      },
+      {
+        topic: "Technology",
+        question: "Is the technology already running on exactly this feedstock at a comparable scale?",
+        struggle: "A plant that works with wood chips won't automatically run on straw or digestate. Missing local service turns every outage into a long one.",
+        evidence: "Reference plants with the same feedstock, performance guarantees, a service contract and spare-part availability."
+      },
+      {
+        topic: "Technology performance & quality",
+        question: "Does the plant reach its nameplate capacity in continuous operation – at the promised biochar quality?",
+        struggle: "Many plants, especially those with nameplate capacities above 2 t/h, don't reach their rated output in practice. Common causes are a wrongly designed rotary kiln and other technology-specific design problems. Missing capacity means missing biochar, certificates and heat – and the business case comes under pressure.",
+        evidence: "A technology evaluation before every project, to find the best-fit technology and make an informed decision: operating data from reference plants of comparable size, performance and quality guarantees in the supply contract, an acceptance test at nameplate load."
+      }
+    ]
+  }
+};

@@ -11,7 +11,8 @@ import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown, ArrowDow
 import emailjs from '@emailjs/browser';
 import decarboLogo from './assets/decarbo-logo.png';
 import biocharEuropeLogo from './assets/Biochar Europe Logo Small White@3x.svg';
-import WhyProjectsFail from './features/why-projects-fail/WhyProjectsFail';
+import ExpectationsCheck from './features/expectations-check/ExpectationsCheck';
+import { expectationsCheckContent } from './features/expectations-check/content';
 import ProcessFlow from './components/ProcessFlow';
 import SankeyDiagram from './components/SankeyDiagram';
 import Results from './components/Results';
@@ -92,6 +93,21 @@ const PyrolysisCalculator = () => {
   const [contactConsent, setContactConsent] = useState(false);
   const [formErrors, setFormErrors] = useState({ name: '', email: '' });
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  // Expectations Check: which questions the visitor marked as clarified (kept only in this browser session)
+  const [clarified, setClarified] = useState<number[]>([]);
+  const [checkUsed, setCheckUsed] = useState(false);
+  const toggleClarified = (index: number) => {
+    setCheckUsed(true);
+    setClarified(prev => (prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index].sort((a, b) => a - b)));
+  };
+  const openPoints = expectationsCheckContent[language].questions
+    .map((q, i) => ({ number: i + 1, topic: q.topic }))
+    .filter(p => !clarified.includes(p.number - 1));
+  const scrollToLeadForm = () => {
+    document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('user-name')?.focus({ preventScroll: true });
+  };
 
 // ========================================
 // ENDE TEIL 1 - Weiter mit Teil 2
@@ -233,6 +249,13 @@ const PyrolysisCalculator = () => {
         // CO2 KPIs
         annual_co2_removal: formatNumber(annualCO2, 0),
         total_co2_removal: formatNumber(totalCO2, 0),
+
+        // Erwartungs-Check: offene Punkte (nur wenn der Besucher den Check genutzt hat)
+        open_points: !checkUsed
+          ? (language === 'de' ? 'Erwartungs-Check nicht genutzt' : 'Expectations Check not used')
+          : openPoints.length === 0
+            ? (language === 'de' ? 'Alle Punkte geklärt' : 'All points clarified')
+            : openPoints.map(p => `${p.number}. ${p.topic}`).join(', '),
         
         date: new Date().toLocaleString(language === 'de' ? 'de-DE' : 'en-US'),
         to_email: 'th@decarbo-engineering.com'
@@ -734,6 +757,64 @@ const PyrolysisCalculator = () => {
         }
       }
       
+      // Expectations Check as the last page
+      {
+        const check = expectationsCheckContent[language];
+        // Standard PDF fonts cannot render subscripts or arrows
+        const pdfSafe = (s: string) => s.replace(/₂/g, '2').replace(/[→↑]/g, '');
+        pdf.addPage();
+        yPosition = addHeader();
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(13);
+        pdf.setTextColor(16, 185, 129);
+        const titleLines = pdf.splitTextToSize(pdfSafe(check.title), contentWidth);
+        pdf.text(titleLines, margin, yPosition);
+        yPosition += titleLines.length * 6 + 2;
+
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        pdf.setTextColor(80, 80, 80);
+        const introLines = pdf.splitTextToSize(pdfSafe(check.intro), contentWidth);
+        pdf.text(introLines, margin, yPosition);
+        yPosition += introLines.length * 4.2 + 4;
+
+        const doneLabel = language === 'de' ? 'Geklärt' : 'Clarified';
+        const openLabel = language === 'de' ? 'Offen' : 'Open';
+        check.questions.forEach((q, i) => {
+          const isDone = clarified.includes(i);
+          const qLines = pdf.splitTextToSize(pdfSafe(q.question), contentWidth - 30);
+          const blockH = 5 + qLines.length * 4.2 + 3;
+          if (yPosition + blockH > pageHeight - 15) {
+            pdf.addPage();
+            yPosition = addHeader();
+          }
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(9);
+          if (isDone) pdf.setTextColor(22, 163, 74); else pdf.setTextColor(234, 88, 12);
+          pdf.text(checkUsed ? (isDone ? doneLabel : openLabel) : '', margin, yPosition);
+          pdf.setTextColor(30, 30, 30);
+          pdf.text(`${i + 1}. ${pdfSafe(q.topic)}`, margin + 30, yPosition);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(60, 60, 60);
+          pdf.text(qLines, margin + 30, yPosition + 4.5);
+          yPosition += blockH;
+        });
+
+        if (checkUsed && openPoints.length > 0) {
+          yPosition += 2;
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(9);
+          pdf.setTextColor(80, 80, 80);
+          const ctaLines = pdf.splitTextToSize(pdfSafe(check.ctaOffer), contentWidth);
+          if (yPosition + ctaLines.length * 4.2 > pageHeight - 15) {
+            pdf.addPage();
+            yPosition = addHeader();
+          }
+          pdf.text(ctaLines, margin, yPosition);
+        }
+      }
+
       // Add footer to all pages
       console.log('Generating footer');
       const pageCount = pdf.internal.pages.length - 1;
@@ -894,6 +975,9 @@ const PyrolysisCalculator = () => {
                       {language === 'de' ? 'Wichtige Hinweise' : 'Important Notes'}
                     </h3>
                   </div>
+                  <a href="#expectations-check" className="text-xs text-amber-200 hover:text-white underline underline-offset-2 cursor-pointer">
+                    {expectationsCheckContent[language].heroTeaser}
+                  </a>
                   {/* Dropdown Content */}
                   <div className="hidden group-hover:block absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-amber-500/50 rounded-xl p-4 shadow-xl z-10">
                     <ul className="text-gray-300 text-xs space-y-2">
@@ -1001,8 +1085,8 @@ const PyrolysisCalculator = () => {
                     {t.plantCapacity}: <span className="font-bold text-white">{formatNumber(inputs.plantCapacity)} kg/h</span>
                   </label>
                   <div className="flex items-center gap-3">
-                    <input id="plant-capacity" name="plantCapacity" type="range" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                    <input type="number" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="w-28 px-2 py-1 text-sm text-white bg-gray-700 border border-blue-500/50 rounded-md text-right focus:outline-none focus:border-blue-400" />
+                    <input data-setting="plantCapacity" id="plant-capacity" name="plantCapacity" type="range" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+                    <input data-setting="plantCapacity" type="number" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="w-28 px-2 py-1 text-sm text-white bg-gray-700 border border-blue-500/50 rounded-md text-right focus:outline-none focus:border-blue-400" />
                   </div>
                 </div>
                 <div>
@@ -1075,7 +1159,7 @@ const PyrolysisCalculator = () => {
                   <label htmlFor="operating-hours" className="block text-sm font-medium text-blue-300 mb-2">
                     {t.operatingHours}: <span className="font-bold text-white">{formatNumber(inputs.operatingHours)} h</span>
                   </label>
-                  <input id="operating-hours" name="operatingHours" type="range" min="0" max="8500" step="100" value={inputs.operatingHours} onChange={(e) => handleInputChange('operatingHours', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+                  <input data-setting="operatingHours" id="operating-hours" name="operatingHours" type="range" min="0" max="8500" step="100" value={inputs.operatingHours} onChange={(e) => handleInputChange('operatingHours', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
                 </div>
                 <div>
                   <label htmlFor="project-lifetime" className="block text-sm font-medium text-blue-300 mb-2">
@@ -1137,7 +1221,7 @@ const PyrolysisCalculator = () => {
                   <label htmlFor="feedstock-cost" className="block text-sm font-medium text-orange-300 mb-2">
                     {t.feedstockCost}: <span className="font-bold text-white">{inputs.feedstockCost} €/t</span>
                   </label>
-                  <input id="feedstock-cost" name="feedstockCost" type="range" min="0" max="300" step="1" value={inputs.feedstockCost} onChange={(e) => handleInputChange('feedstockCost', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+                  <input data-setting="feedstockCost" id="feedstock-cost" name="feedstockCost" type="range" min="0" max="300" step="1" value={inputs.feedstockCost} onChange={(e) => handleInputChange('feedstockCost', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
                 </div>
                 <div>
                   <label htmlFor="labor-cost" className="block text-sm font-medium text-orange-300 mb-2">
@@ -1232,8 +1316,11 @@ const PyrolysisCalculator = () => {
           
           <Results {...sectionProps} />
 
+          {/* Expectations Check */}
+          <ExpectationsCheck language={language} t={t} inputs={inputs} clarified={clarified} onToggleClarified={toggleClarified} onRequest={scrollToLeadForm} />
+
           {/* Lead Capture Form */}
-          <div className="mt-6 bg-gradient-to-r from-blue-900/20 to-gray-800 p-6 rounded-lg border border-blue-500/30">
+          <div id="lead-form" className="mt-6 bg-gradient-to-r from-blue-900/20 to-gray-800 p-6 rounded-lg border border-blue-500/30 scroll-mt-6">
             <h3 className="text-xl font-semibold text-blue-400 mb-2">{t.beforeDownload}</h3>
             <p className="text-gray-400 text-sm mb-4">
               {language === 'de' ? 'Um den PDF-Bericht zu erstellen, geben Sie bitte Ihre Kontaktdaten an:' : 'To generate the PDF report, please provide your contact information:'}
@@ -1262,6 +1349,14 @@ const PyrolysisCalculator = () => {
                 <span className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors">{t.contactConsent}</span>
               </label>
             </div>
+
+            {checkUsed && (
+              <p className="mt-3 text-xs text-gray-400">
+                {language === 'de'
+                  ? `Ihre Angaben aus dem Erwartungs-Check werden mit Ihrer Anfrage übermittelt${openPoints.length > 0 ? ` (offene Punkte: ${openPoints.map(p => p.number).join(', ')})` : ''}.`
+                  : `Your Expectations Check answers are sent with your request${openPoints.length > 0 ? ` (open points: ${openPoints.map(p => p.number).join(', ')})` : ''}.`}
+              </p>
+            )}
           </div>
 
           {/* PDF Generation Button */}
@@ -1272,9 +1367,6 @@ const PyrolysisCalculator = () => {
             </button>
           </div>
         </div>
-
-        {/* Why Projects Fail */}
-        <WhyProjectsFail language={language} />
       </div>
 
       {/* Footer */}

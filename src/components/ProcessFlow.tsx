@@ -47,7 +47,7 @@ const ProcessFlow = ({ language, t, inputs, products, model, formatNumber, expan
             <label htmlFor="biochar-yield" className="block text-sm font-medium text-orange-300 mb-2">
               {t.biocharYield}: <span className="font-bold text-white">{inputs.biocharYield}%</span>
             </label>
-            <input id="biochar-yield" name="biocharYield" type="range" min="10" max="50" step="1" value={inputs.biocharYield} onChange={(e) => handleInputChange('biocharYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+            <input data-setting="biocharYield" id="biochar-yield" name="biocharYield" type="range" min="10" max="50" step="1" value={inputs.biocharYield} onChange={(e) => handleInputChange('biocharYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
           </div>
           <div>
             <div className="flex items-center justify-between">
@@ -193,7 +193,7 @@ const ProcessFlow = ({ language, t, inputs, products, model, formatNumber, expan
                 <Info className="w-5 h-5" />
               </button>
             </div>
-            <input id="biochar-price" name="biocharPrice" type="range" min="0" max="1000" step="10" value={inputs.biocharPrice} onChange={(e) => handleInputChange('biocharPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+            <input data-setting="biocharPrice" id="biochar-price" name="biocharPrice" type="range" min="0" max="1000" step="10" value={inputs.biocharPrice} onChange={(e) => handleInputChange('biocharPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
             {expandedInfo['biocharPrice'] && (
               <p className="mt-1 text-xs text-gray-400 bg-green-900/20 p-2 rounded">{t.biocharPriceInfo}</p>
             )}
@@ -208,7 +208,7 @@ const ProcessFlow = ({ language, t, inputs, products, model, formatNumber, expan
                 <Info className="w-5 h-5" />
               </button>
             </div>
-            <input id="lca-factor" name="lcaFactor" type="range" min="0" max="3.6" step="0.1" value={inputs.lcaFactor} onChange={(e) => handleInputChange('lcaFactor', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+            <input data-setting="lcaFactor" id="lca-factor" name="lcaFactor" type="range" min="0" max="3.6" step="0.1" value={inputs.lcaFactor} onChange={(e) => handleInputChange('lcaFactor', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
             {expandedInfo['lcaFactor'] && (
               <div className="mt-1 text-xs text-gray-400 bg-green-900/20 p-2 rounded space-y-1">
                 {language === 'de' ? (
@@ -277,6 +277,7 @@ const ProcessFlow = ({ language, t, inputs, products, model, formatNumber, expan
             </div>
             <input
               id="certificate-fee-rate"
+              data-setting="certificateFeeRate"
               name="certificateFeeRate"
               type="range"
               min="0"
@@ -583,7 +584,7 @@ const ProcessFlow = ({ language, t, inputs, products, model, formatNumber, expan
                   <label htmlFor="heat-yield" className="block text-sm font-medium text-orange-200 mb-1">
                     {t.heatSoldPercentage}: <span className="font-bold text-white">{inputs.heatYield}%</span>
                   </label>
-                  <input id="heat-yield" name="heatYield" type="range" min="0" max="100" step="1" value={inputs.heatYield} onChange={(e) => handleInputChange('heatYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-400" />
+                  <input data-setting="heatYield" id="heat-yield" name="heatYield" type="range" min="0" max="100" step="1" value={inputs.heatYield} onChange={(e) => handleInputChange('heatYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-400" />
                 </div>
                 <div>
                   <label htmlFor="heat-price" className="block text-sm font-medium text-orange-200 mb-1">
