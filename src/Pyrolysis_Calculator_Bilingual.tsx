@@ -12,6 +12,8 @@ import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown, ArrowDow
 import emailjs from '@emailjs/browser';
 import decarboLogo from './assets/decarbo-logo.png';
 import biocharEuropeLogo from './assets/Biochar Europe Logo Small White@3x.svg';
+import WhyProjectsFail from './features/why-projects-fail/WhyProjectsFail';
+import { Language } from './features/why-projects-fail/questions';
 
 // Translation object
 const translations = {
@@ -2895,6 +2897,9 @@ const PyrolysisCalculator = () => {
             </button>
           </div>
         </div>
+
+        {/* Why Projects Fail */}
+        <WhyProjectsFail language={language as Language} />
       </div>
 
       {/* Footer */}
