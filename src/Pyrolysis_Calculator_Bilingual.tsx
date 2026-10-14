@@ -4,7 +4,7 @@
 // Last Updated: 2025-11-26
 // Version: 2.0.1
 // Changes: Biochar price minimum value set to 0 EUR
-// Status: Production    Ready
+// Status: Production     Ready
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown, ArrowDown, ArrowUp, ArrowRight, ArrowDownRight } from 'lucide-react';
