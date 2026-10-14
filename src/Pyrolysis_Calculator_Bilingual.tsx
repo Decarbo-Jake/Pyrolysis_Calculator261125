@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie } from 'recharts';
-import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown } from 'lucide-react';
+import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown, ArrowDown, ArrowUp, ArrowRight, ArrowDownRight } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import decarboLogo from './assets/decarbo-logo.png';
 
@@ -41,13 +41,15 @@ const translations = {
     moreInfo: "→ Weitere Informationen zu Heizwerten",
     combustionPower: "Feuerungsleistung",
     usableThermalPower: "Nutzbare thermische Leistung",
-    plantCapacity: "Anlagendurchsatz",
+    plantCapacity: "Anlagendurchsatz (Trockenmasse)",
+    fuelBulkDensity: "Brennstoff Schüttdichte",
+    fuelBulkDensityInfo: "Die Schüttdichte von Biomasse-Brennstoffen variiert stark je nach Material, Aufbereitung und Wassergehalt. Die folgenden Werte beziehen sich auf einen Wassergehalt von ca. 20%.",
     operatingHours: "Volllaststunden/Jahr",
     projectLifetime: "Projektlaufzeit",
     years: "Jahre",
     electricalPower: "Elektrische Nennleistung",
     electricalPowerInfo: "Je nach Anlagengröße und Typ fallen unterschiedliche elektrische Verbrauchsleistungen an. Die Angabe hier bezieht sich auf die durchschnittliche Last, die die gesamte Anlage produziert oder benötigt. Wichtig ist: Es gibt autotherme Anlagen, die die thermische Energie aus der Feuerung nutzen, um den Prozess aufrechtzuerhalten, und es gibt strombasierte Anlagen, die Strom beziehen, um die Biomasse zu erhitzen. Dieser kann aus der eigenen Produktion stammen oder aus dem Netz bezogen werden. Hier ist auf die Hersteller- und Projektdaten zu achten.",
-    thermalEfficiency: "Thermischer Wirkungsgrad",
+    thermalEfficiency: "Wirkungsgrad Wärmetauscher",
     thermalEfficiencyInfo: "Der thermische Wirkungsgrad beschreibt den Anteil der Feuerungsleistung, der als nutzbare Wärme verfügbar ist. Der thermische Wirkungsgrad liegt in der Regel unterhalb von 50%, da ca. 25% der Biomasse in hochkalorische Biokohle umgewandelt werden, die nicht thermisch verwertet wird. Der verbleibende Prozessverlust entsteht durch Strahlungs- und Konvektionsverluste sowie incomplete Verbrennung.",
     annualElectricityConsumption: "Jährlicher Stromverbrauch",
     grossElectricityConsumption: "Bruttostromverbrauch",
@@ -63,6 +65,10 @@ const translations = {
     maintenanceCost: "Wartungskosten",
     maintenanceInfo: "Wartungskosten können variieren je nach Projekt, Anlagentyp und Biomasse, aber als Orientierung kann man mit 2,5% anlagenbezogenen Investitionskosten rechnen.",
     biocharYield: "Biochar Ausbeute",
+    biocharCarbonContent: "C-Anteil in Biochar",
+    biocharHeatingValue: "Heizwert Biochar",
+    biocharBulkDensity: "Schüttdichte Biochar",
+    autothermalShare: "Prozesswärmeanteil Autothermie",
     ofFeedstock: "vom Rohstoff",
     biocharProduction: "Biochar Produktion",
     biocharPrice: "Biochar Preis",
@@ -71,6 +77,8 @@ const translations = {
     lcaFactorInfo: "Der LCA-Faktor beschreibt die tatsächliche CO₂-Senkenleistung der produzierten Biokohle unter Berücksichtigung aller Prozessemissionen. Was wird berücksichtigt? Biomasse-Logistik (Transport zur Anlage), Vorbehandlung und Trocknung, Energieverbrauch der Pyrolyseanlage, Nachbehandlung und Konfektionierung, Transport und Ausbringung der Biokohle. Berechnung: Physikalisch entspricht 1 kg gebundener Kohlenstoff in der Biokohle ca. 3,67 kg CO₂. Von diesem theoretischen Maximum werden die Lebenszyklusemissionen abgezogen, um die netto CO₂-Senkenleistung zu ermitteln. Typische Werte: Optimierte Anlagen: 2,5 - 3,0 tCO₂/t Biokohle; Durchschnittliche Anlagen: 2,0 - 2,5 tCO₂/t Biokohle; Konservative Kalkulation: 2,4 tCO₂/t Biokohle (Standardwert). Wichtig: Der finale LCA-Faktor ist projektspezifisch und erfordert eine detaillierte Lebenszyklusanalyse nach anerkannten Standards.",
     co2RemovalPrice: "CO₂ Removal Credit Preis",
     co2RemovalPriceInfo: "Der CO₂ Removal Credit Preis beschreibt den Marktwert für gehandelte CO₂-Entnahmezertifikate (Carbon Dioxide Removal, CDR). Die angegebenen Preise orientieren sich an aktuellen Marktdurchschnitten. Den tagesaktuellen Durchschnittspreis für gehandelte CO₂-Entnahmezertifikate finden Sie auf der Website www.cdr.fyi. Es ist wichtig zu beachten, dass auch höhere Preise erzielbar sind. Diese hängen stark von der Vermarktungsstrategie des Gesamtprojekts ab, einschließlich: Zertifizierungsstandards und deren Anerkennung, Transparenz und Nachverfolgung (Tracking), Kundengruppe und deren Bereitschaft zu Premium-Zahlung, und Langfristigkeit der Abnahmeverträge. Eine professionelle Vermarktungsstrategie kann daher erheblich zu besseren Preisen beitragen.",
+    certificateFeeRate: "Handels- & dMRV-Kosten",
+    certificateFeeRateInfo: "Kostenanteil, der vom Brutto-Zertifikatspreis für Handelsplattformgebühren und dMRV-Kosten (digitale Messung, Berichterstattung & Verifizierung) abgezogen wird. Typische Handelsplattformen berechnen 20–30%. Bei direkten Abnahmeverträgen können die Gebühren niedriger ausfallen. Der angezeigte Zertifikatserlös ist bereits um diesen Kostenanteil bereinigt.",
     annualRevenues: "Jährliche Erträge",
     biocharSalesRevenue: "Erträge aus Biochar Verkauf",
     co2CertificateRevenue: "Erträge aus CO₂ Entnahme Zertifikaten",
@@ -81,13 +89,13 @@ const translations = {
     heatSoldPercentage: "Anteil verkaufter Wärme",
     heatSalePrice: "Verkaufswärme Preis",
     annualHeatRevenue: "Jährliche Wärme-Erlöse",
-    electricityYield: "Stromausbeute (% Energieinhalt)",
+    electricityYield: "Stromausbeute/el. Wirkungsgrad (%)",
     electricityProduction: "Stromproduktion",
     electricitySalesRevenue: "Umsatz Stromverkauf",
     electricityPrice: "Strompreis (€/kWh)",
-    additionalInvestment: "Zusätzliche Investition (€)",
     bioOilYield: "Bio-Öl Ausbeute (% vom Rohstoff)",
     bioOilPrice: "Bio-Öl Preis (€/t)",
+    bioOilHeatingValue: "Heizwert Pyrolyseöl (MJ/kg)",
     npv: "Kapitalwert (NPV)",
     irr: "Interner Zinsfuß (IRR)",
     paybackPeriod: "Amortisationszeit",
@@ -162,13 +170,15 @@ const translations = {
     moreInfo: "→ More information on heating values",
     combustionPower: "Combustion Power",
     usableThermalPower: "Usable Thermal Power",
-    plantCapacity: "Plant Capacity",
-    operatingHours: "Operating Hours/Year",
+    plantCapacity: "Plant Capacity (Dry Mass)",
+    fuelBulkDensity: "Fuel Bulk Density",
+    fuelBulkDensityInfo: "The bulk density of biomass fuels varies significantly depending on material, processing, and moisture content. The following values refer to a moisture content of approx. 20%.",
+    operatingHours: "Full-Load-Hours/Year",
     projectLifetime: "Project Lifetime",
     years: "Years",
     electricalPower: "Electrical Rated Power",
     electricalPowerInfo: "Depending on plant size and type, different electrical power consumption levels occur. The specification here refers to the average load that the entire plant produces or requires. It is important to note: There are autothermal plants that use thermal energy from combustion to maintain the process, and there are electricity-based plants that purchase electricity to heat the biomass. This electricity can come from the plant's own production or from the grid. It is important to pay attention to manufacturer and project data.",
-    thermalEfficiency: "Thermal Efficiency",
+    thermalEfficiency: "Heat Exchanger Efficiency",
     thermalEfficiencyInfo: "Thermal efficiency describes the proportion of combustion power available as usable heat. Thermal efficiency typically lies below 50% because approximately 25% of the biomass is converted into high-calorific biochar that is not thermally recovered. The remaining process loss results from radiation and convection losses as well as incomplete combustion.",
     annualElectricityConsumption: "Annual Electricity Consumption",
     grossElectricityConsumption: "Gross Electricity Consumption",
@@ -184,6 +194,10 @@ const translations = {
     maintenanceCost: "Maintenance Cost",
     maintenanceInfo: "Maintenance costs can vary depending on the project, plant type and biomass, but as a guideline, 2.5% of plant-related investment costs can be used.",
     biocharYield: "Biochar Yield",
+    biocharCarbonContent: "Carbon Content in Biochar",
+    biocharHeatingValue: "Biochar Heating Value",
+    biocharBulkDensity: "Biochar Bulk Density",
+    autothermalShare: "Autothermal Process Heat Share",
     ofFeedstock: "of feedstock",
     biocharProduction: "Biochar Production",
     biocharPrice: "Biochar Price",
@@ -192,6 +206,8 @@ const translations = {
     lcaFactorInfo: "The LCA factor describes the actual CO₂ removal performance of the produced biochar considering all process emissions. What is considered? Biomass logistics (transport to facility), pre-treatment and drying, energy consumption of the pyrolysis plant, post-treatment and packaging, transport and application of biochar. Calculation: Physically, 1 kg of bound carbon in biochar corresponds to approximately 3.67 kg CO₂. From this theoretical maximum, lifecycle emissions are subtracted to determine net CO₂ removal performance. Typical values: Optimized plants: 2.5 - 3.0 tCO₂/t biochar; Average plants: 2.0 - 2.5 tCO₂/t biochar; Conservative calculation: 2.4 tCO₂/t biochar (standard value). Important: The final LCA factor is project-specific and requires detailed lifecycle assessment according to recognized standards.",
     co2RemovalPrice: "CO₂ Removal Credit Price",
     co2RemovalPriceInfo: "The CO₂ Removal Credit Price describes the market value for traded CO₂ removal certificates (Carbon Dioxide Removal, CDR). The indicated prices are based on current market averages. You can find current average prices for traded CO₂ removal certificates on the website www.cdr.fyi. It is important to note that higher prices are achievable. These depend largely on the marketing strategy of the overall project, including: certification standards and their recognition, transparency and tracking, customer segment and willingness to pay premiums, and long-term offtake agreements. A professional marketing strategy can therefore contribute significantly to better prices.",
+    certificateFeeRate: "Trading & dMRV Fees",
+    certificateFeeRateInfo: "Cost share deducted from the gross certificate price for trading platform commissions and dMRV (digital Measurement, Reporting & Verification) fees. Typical trading platforms charge 20–30%. Direct offtake agreements may have lower fees. All displayed certificate revenues already reflect this deduction.",
     annualRevenues: "Annual Revenues",
     biocharSalesRevenue: "Revenue from Biochar Sales",
     co2CertificateRevenue: "Revenue from CO₂ Removal Certificates",
@@ -202,15 +218,15 @@ const translations = {
     heatSoldPercentage: "Percentage of Heat Sold",
     heatSalePrice: "Heat Sale Price",
     annualHeatRevenue: "Annual Heat Revenue",
-    electricityYield: "Electricity Yield (% Energy Content)",
+    electricityYield: "Electricity Yield/el. Efficiency (%)",
     electricityProduction: "Electricity Production",
     electricitySalesRevenue: "Electricity Sales Revenue",
     electricitySurplus: "Electricity Surplus",
     electricityPrice: "Electricity Price (€/kWh)",
     electricitySalePriceLabel: "Electricity Sale Price",
-    additionalInvestment: "Additional Investment (€)",
     bioOilYield: "Bio-Oil Yield (% of feedstock)",
     bioOilPrice: "Bio-Oil Price (€/t)",
+    bioOilHeatingValue: "Pyrolysis Oil Heating Value (MJ/kg)",
     npv: "Net Present Value (NPV)",
     irr: "Internal Rate of Return (IRR)",
     paybackPeriod: "Payback Period",
@@ -338,30 +354,35 @@ const PyrolysisCalculator = () => {
 
   const [inputs, setInputs] = useState({
     plantCapacity: 1000,
-    fuelHeatValue: 3.8,
+    fuelBulkDensity: 400,
+    fuelHeatValue: 4,
     operatingHours: 7000,
     projectLifetime: 10,
     discountRate: 6,
     electricalPower: 100,
     electricityConsumptionPrice: 0.25,
-    thermalEfficiency: 45,
+    thermalEfficiency: 90,
     initialInvestment: 3000000,
     feedstockCost: 50,
     laborCost: 50000,
     maintenanceCost: 3000000 * 0.025, // 2.5% of initial investment
     biocharYield: 25,
+    biocharCarbonContent: 80,
+    biocharHeatingValue: 28,
+    biocharBulkDensity: 250,
+    autothermalShare: 10,
     biocharPrice: 300,
     lcaFactor: 2.4,
     co2RemovalPrice: 100,
+    certificateFeeRate: 25,
     heatYield: 40,
     heatPrice: 0.08,
-    heatInvestment: 50000,
     electricityYield: 18,
     electricityPrice: 0.15,
-    electricityInvestment: 500000,
+    usableResidualHeat: 50,
     bioOilYield: 20,
     bioOilPrice: 400,
-    bioOilInvestment: 1000000
+    bioOilHeatingValue: 22
   });
 
   const [results, setResults] = useState({
@@ -411,6 +432,23 @@ const PyrolysisCalculator = () => {
     setExpandedInfo(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  // Computed: Intermediate energy values
+  const pyrolysisGasEnergyMW = (inputs.plantCapacity * inputs.fuelHeatValue / 1000) - (inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue / (1000 * 3.6));
+  const oilEnergyMW = products.bioOil ? (inputs.plantCapacity * (1 - inputs.biocharYield / 100)) * (inputs.bioOilYield / 100) * inputs.bioOilHeatingValue / 3600 : 0;
+  const residualGasEnergyMW = pyrolysisGasEnergyMW - oilEnergyMW;
+  // Computed: Wärmestrom (heat flow after autothermal share; based on residual gas when oil condensation is active)
+  const waermestromMW = residualGasEnergyMW * (1 - inputs.autothermalShare / 100);
+  const waermestromKW = waermestromMW * 1000;
+  // Electrical power and production from Wärmestrom × Stromausbeute
+  const elecPowerKW = products.electricity ? waermestromKW * (inputs.electricityYield / 100) : 0;
+  const elecProductionKWh = products.electricity ? elecPowerKW * inputs.operatingHours : 0;
+  // Residual heat after electricity generation
+  const residualHeatMW = products.electricity ? waermestromMW * (1 - inputs.electricityYield / 100) : waermestromMW;
+  const usableResidualHeatMW = products.electricity ? residualHeatMW * (inputs.usableResidualHeat / 100) : waermestromMW;
+  // Thermal rated power: based on usable residual heat (if electricity active) or full Wärmestrom
+  const thermalRatedPowerMW = (products.electricity ? usableResidualHeatMW : waermestromMW) * (inputs.thermalEfficiency / 100);
+  const thermalRatedPowerKW = thermalRatedPowerMW * 1000;
+
   const handleProductChange = (product) => {
     if (product === 'biochar') return;
     setProducts(prev => ({ ...prev, [product]: !prev[product] }));
@@ -421,14 +459,11 @@ const PyrolysisCalculator = () => {
   };
 
   const calculateNPV = () => {
-    const { plantCapacity, operatingHours, projectLifetime, discountRate, initialInvestment, feedstockCost, laborCost, maintenanceCost, biocharYield, biocharPrice, heatYield, heatPrice, heatInvestment, electricityYield, electricityPrice, electricityInvestment, bioOilYield, bioOilPrice, bioOilInvestment } = inputs;
+    const { plantCapacity, operatingHours, projectLifetime, discountRate, initialInvestment, feedstockCost, laborCost, maintenanceCost, biocharYield, biocharPrice, heatYield, heatPrice, electricityYield, electricityPrice, bioOilYield, bioOilPrice, certificateFeeRate } = inputs;
     
     const annualFeedstock = (plantCapacity * operatingHours) / 1000;
     
-    let totalInvestment = initialInvestment;
-    if (products.heat) totalInvestment += heatInvestment;
-    if (products.electricity) totalInvestment += electricityInvestment;
-    if (products.bioOil) totalInvestment += bioOilInvestment;
+    const totalInvestment = initialInvestment;
     
     let annualRevenue = 0;
     
@@ -437,23 +472,24 @@ const PyrolysisCalculator = () => {
     const biocharSalesRevenue = biocharProduction * biocharPrice;
     annualRevenue += biocharSalesRevenue;
     
-    // CO₂ Certificate Revenue (25% deduction for MRV/trading costs = 0.75 multiplier)
-    const annualCO2Removal = biocharProduction * inputs.lcaFactor;
-    const certificateRevenue = annualCO2Removal * inputs.co2RemovalPrice * 0.75;
+    // CO₂ Certificate Revenue
+    const annualCO2Removal = biocharProduction * (inputs.biocharCarbonContent / 100);
+    const certificateRevenue =
+      annualCO2Removal
+      * inputs.co2RemovalPrice
+      * (1 - certificateFeeRate / 100);
     annualRevenue += certificateRevenue;
     
-    // Heat Revenue
+    // Heat Revenue — Thermische Nennleistung × Volllaststunden × Anteil verkaufter Wärme
     if (products.heat) {
-      const usableThermalPower = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100);
-      const heatRevenue = usableThermalPower * 1000 * (inputs.heatYield / 100) * operatingHours * heatPrice;
+      const heatRevenue = thermalRatedPowerKW * (inputs.heatYield / 100) * operatingHours * heatPrice;
       annualRevenue += heatRevenue;
     }
     
-    // Electricity Revenue (only surplus counted)
+    // Electricity Revenue (only surplus counted) — Stromproduktion = Wärmestrom × Stromausbeute
     let electricityProduction = 0;
     if (products.electricity) {
-      const usableThermalPowerKW = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / 100;
-      electricityProduction = usableThermalPowerKW * (electricityYield / 100) * operatingHours;
+      electricityProduction = waermestromKW * (electricityYield / 100) * operatingHours;
       const grossElectricityConsumption = inputs.electricalPower * operatingHours;
       const surplusElectricity = Math.max(0, electricityProduction - grossElectricityConsumption);
       const electricityRevenue = surplusElectricity * electricityPrice;
@@ -539,13 +575,9 @@ const PyrolysisCalculator = () => {
 
   // Automatisch Wartungskosten an 2.5% der Gesamtinvestition anpassen
   useEffect(() => {
-    let totalInvestment = inputs.initialInvestment;
-    if (products.heat) totalInvestment += inputs.heatInvestment;
-    if (products.electricity) totalInvestment += inputs.electricityInvestment;
-    if (products.bioOil) totalInvestment += inputs.bioOilInvestment;
-    const guidanceValue = totalInvestment * 0.025;
+    const guidanceValue = inputs.initialInvestment * 0.025;
     setInputs(prev => ({ ...prev, maintenanceCost: guidanceValue }));
-  }, [products.heat, products.electricity, products.bioOil, inputs.initialInvestment, inputs.heatInvestment, inputs.electricityInvestment, inputs.bioOilInvestment]);
+  }, [inputs.initialInvestment]);
 
   const getProductIcon = (product) => {
     switch (product) {
@@ -570,12 +602,12 @@ const PyrolysisCalculator = () => {
   const sendEmailNotification = async () => {
     try {
       // Calculate all relevant KPIs
-      const heatRev = products.heat ? (((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100)) * 1000 * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice / 1000) : 0;
-      const elecRev = products.electricity ? Math.max(0, ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice / 1000) : 0;
+      const heatRev = products.heat ? (thermalRatedPowerKW * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice / 1000) : 0;
+      const elecRev = products.electricity ? Math.max(0, (elecProductionKWh - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice / 1000) : 0;
       const bioOilRev = products.bioOil ? ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100) * inputs.bioOilPrice) : 0;
       const biocharRev = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.biocharPrice / 1000;
-      const certRev = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor * inputs.co2RemovalPrice * 0.75) / 1000;
-      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor;
+      const certRev = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100) * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100)) / 1000;
+      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100);
       const totalCO2 = annualCO2 * inputs.projectLifetime;
       
       const templateParams = {
@@ -596,9 +628,6 @@ const PyrolysisCalculator = () => {
         
         // Investitionen
         total_investment: formatNumber(inputs.initialInvestment),
-        electricity_investment: formatNumber(inputs.electricityInvestment),
-        bio_oil_investment: formatNumber(inputs.bioOilInvestment),
-        heat_investment: formatNumber(inputs.heatInvestment),
         
         // Produkte aktiviert
         heat_enabled: products.heat ? 'Ja' : 'Nein',
@@ -623,7 +652,9 @@ const PyrolysisCalculator = () => {
         
         // CO2 Parameter
         lca_factor: inputs.lcaFactor,
+        biochar_carbon_content: inputs.biocharCarbonContent,
         co2_removal_price: formatNumber(inputs.co2RemovalPrice),
+        certificate_fee_rate: inputs.certificateFeeRate,
         
         // Wirtschaftliche KPIs
         npv: formatNumber(results.npv || 0),
@@ -741,7 +772,7 @@ const PyrolysisCalculator = () => {
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(31, 41, 55);
-      const titleText = language === 'de' ? 'Pyrolyse-Anlagen Wirtschaftlichkeitsrechner' : 'Pyrolysis Plant ROI Calculator Beta';
+      const titleText = language === 'de' ? 'Pyrolyse-Anlagen ROI-Rechner Beta 2.0' : 'Pyrolysis Plant ROI Calculator Beta 2.0';
       pdf.text(titleText, margin, yPosition + 3.5);
       yPosition += 13;
       
@@ -851,7 +882,7 @@ const PyrolysisCalculator = () => {
       pdf.text('Umsatz Wärme', margin + 1, yPosition + 3);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      const heatRev = products.heat ? (((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100)) * 1000 * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice / 1000) : 0;
+      const heatRev = products.heat ? (thermalRatedPowerKW * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice / 1000) : 0;
       pdf.text(`${formatNumber(heatRev)}k €/a`, margin + 1, yPosition + 10);
       
       // Electricity Revenue Box (Gray/Dark)
@@ -863,7 +894,7 @@ const PyrolysisCalculator = () => {
       pdf.text('Umsatz Strom', margin + (contentWidth - 4) / 3 + 3, yPosition + 3);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      const elecRev = products.electricity ? Math.max(0, ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 1000) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice / 1000) : 0;
+      const elecRev = products.electricity ? Math.max(0, (elecProductionKWh - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice / 1000) : 0;
       pdf.text(`${formatNumber(elecRev)}k €/a`, margin + (contentWidth - 4) / 3 + 3, yPosition + 10);
       
       // Bio-Oil Revenue Box (Purple)
@@ -901,7 +932,7 @@ const PyrolysisCalculator = () => {
       pdf.text('Umsatz Zertifikate', margin + (contentWidth - 4) / 3 + 3, yPosition + 3);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      const certRev = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor * inputs.co2RemovalPrice * 0.75) / 1000;
+      const certRev = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100) * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100)) / 1000;
       pdf.text(`${formatNumber(certRev)}k €/a`, margin + (contentWidth - 4) / 3 + 3, yPosition + 10);
       
       yPosition += 16;
@@ -921,7 +952,7 @@ const PyrolysisCalculator = () => {
       pdf.text(co2Title, margin + 2, yPosition + 5);
       yPosition += 10;
       
-      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor;
+      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100);
       const totalCO2 = annualCO2 * inputs.projectLifetime;
       
       // Annual CO2 Box (Green)
@@ -1014,7 +1045,7 @@ const PyrolysisCalculator = () => {
       yPosition += 12;
       
       const capacityLabel = language === 'de' ? 'Kapazität' : 'Capacity';
-      const operatingLabel = language === 'de' ? 'Betriebsstunden' : 'Operating Hours';
+      const operatingLabel = language === 'de' ? 'Betriebsstunden' : 'Full-Load-Hours';
       const lifetimeLabel = language === 'de' ? 'Projektlaufzeit' : 'Project Lifetime';
       const discountLabel = language === 'de' ? 'Diskontrate' : 'Discount Rate';
       const efficiencyLabel = language === 'de' ? 'Wärmewirkungsgrad' : 'Thermal Efficiency';
@@ -1189,7 +1220,7 @@ const PyrolysisCalculator = () => {
                   {language === 'de' ? 'Pyrolyse-Anlagen' : 'Pyrolysis Plants'}
                 </h1>
                 <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-                  {language === 'de' ? 'ROI-Rechner Beta' : 'ROI Calculator Beta'}
+                  {language === 'de' ? 'ROI-Rechner Beta 2.0' : 'ROI Calculator Beta 2.0'}
                 </h1>
               </div>
 
@@ -1387,7 +1418,59 @@ const PyrolysisCalculator = () => {
                   <label htmlFor="plant-capacity" className="block text-sm font-medium text-blue-300 mb-2">
                     {t.plantCapacity}: <span className="font-bold text-white">{formatNumber(inputs.plantCapacity)} kg/h</span>
                   </label>
-                  <input id="plant-capacity" name="plantCapacity" type="range" min="100" max="50000" step="100" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+                  <div className="flex items-center gap-3">
+                    <input id="plant-capacity" name="plantCapacity" type="range" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+                    <input type="number" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="w-24 px-2 py-1 text-sm text-white bg-gray-700 border border-blue-500/30 rounded text-right focus:outline-none focus:border-blue-400" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="fuel-bulk-density" className="block text-sm font-medium text-blue-300 mb-2">
+                      {t.fuelBulkDensity}: <span className="font-bold text-white">{inputs.fuelBulkDensity} kg/m³</span>
+                    </label>
+                    <button onClick={() => toggleInfo('fuelBulkDensity')} className="text-blue-400 hover:text-blue-300 ml-2">
+                      <Info className="w-6 h-6" />
+                    </button>
+                  </div>
+                  <input id="fuel-bulk-density" name="fuelBulkDensity" type="range" min="0" max="1000" step="10" value={inputs.fuelBulkDensity} onChange={(e) => handleInputChange('fuelBulkDensity', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+                  {expandedInfo['fuelBulkDensity'] && (
+                    <div className="mt-2 text-xs text-gray-400 bg-blue-900/20 p-2 rounded">
+                      <p className="mb-2">{t.fuelBulkDensityInfo}</p>
+                      <table className="w-full text-xs border-collapse mt-2">
+                        <thead>
+                          <tr className="border-b border-gray-600">
+                            <th className="text-left py-1 pr-2 text-blue-300">{language === 'de' ? 'Brennstoff' : 'Fuel'}</th>
+                            <th className="text-center py-1 px-2 text-blue-300">{language === 'de' ? 'Schüttdichte (20% H₂O)' : 'Bulk Density (20% H₂O)'}</th>
+                            <th className="text-left py-1 pl-2 text-blue-300">{language === 'de' ? 'Anmerkung' : 'Note'}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { fuel: language === 'de' ? 'Holzpellets (6mm)' : 'Wood Pellets (6mm)', density: '600–700', note: language === 'de' ? 'Normiert, hohe Dichte' : 'Standardized, high density' },
+                            { fuel: language === 'de' ? 'Hartholz-Hackschnitzel (G30)' : 'Hardwood Chips (G30)', density: '350–450', note: language === 'de' ? 'Buche, Eiche – kompakt' : 'Beech, oak – compact' },
+                            { fuel: language === 'de' ? 'Weichholz-Hackschnitzel (G30)' : 'Softwood Chips (G30)', density: '250–350', note: language === 'de' ? 'Fichte, Kiefer – lockerer' : 'Spruce, pine – looser' },
+                            { fuel: language === 'de' ? 'Waldrestholz-Hackschnitzel' : 'Forest Residue Chips', density: '200–300', note: language === 'de' ? 'Mit Rinde und Ästen' : 'With bark and branches' },
+                            { fuel: language === 'de' ? 'Landschaftspflegeholz' : 'Landscape Mgmt. Wood', density: '180–280', note: language === 'de' ? 'Heterogen, oft mit Grünschnitt' : 'Heterogeneous, often with green cuttings' },
+                            { fuel: language === 'de' ? 'Rinde / Borke' : 'Bark', density: '250–350', note: language === 'de' ? 'Variabel je nach Holzart' : 'Variable depending on wood species' },
+                            { fuel: language === 'de' ? 'Stroh (gehäckselt)' : 'Straw (chopped)', density: '80–120', note: language === 'de' ? 'Sehr locker, niedrige Dichte' : 'Very loose, low density' },
+                            { fuel: language === 'de' ? 'Getrockneter Klärschlamm' : 'Dried Sewage Sludge', density: '600–800', note: language === 'de' ? 'Granulat, hoher Ascheanteil' : 'Granulate, high ash content' },
+                            { fuel: language === 'de' ? 'Gärrest (getrocknet)' : 'Digestate (dried)', density: '400–550', note: language === 'de' ? 'Abhängig von Trocknungsgrad' : 'Depending on drying degree' },
+                          ].map((row, i) => (
+                            <tr key={i} className="border-b border-gray-700/50">
+                              <td className="py-1 pr-2 text-gray-300">{row.fuel}</td>
+                              <td className="py-1 px-2 text-center font-semibold text-blue-300">{row.density} kg/m³</td>
+                              <td className="py-1 pl-2 text-gray-500">{row.note}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <p className="mt-2 text-gray-500 italic">
+                        {language === 'de'
+                          ? '→ Alle Werte bei ca. 20% Wassergehalt. Die tatsächliche Schüttdichte hängt von Korngröße, Aufbereitung und Feuchte ab.'
+                          : '→ All values at approx. 20% moisture content. Actual bulk density depends on particle size, processing, and moisture.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
@@ -1452,34 +1535,6 @@ const PyrolysisCalculator = () => {
                   </label>
                   <input id="electricity-consumption-price" name="electricityConsumptionPrice" type="range" min="0.05" max="1" step="0.01" value={inputs.electricityConsumptionPrice} onChange={(e) => handleInputChange('electricityConsumptionPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
                 </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="thermal-efficiency" className="block text-sm font-medium text-blue-300 mb-2">
-                      {t.thermalEfficiency}: <span className="font-bold text-white">{inputs.thermalEfficiency}%</span>
-                    </label>
-                    <button onClick={() => toggleInfo('thermalEfficiency')} className="text-blue-400 hover:text-blue-300 ml-2">
-                      <Info className="w-6 h-6" />
-                    </button>
-                  </div>
-                  <input id="thermal-efficiency" name="thermalEfficiency" type="range" min="0" max="70" step="1" value={inputs.thermalEfficiency} onChange={(e) => handleInputChange('thermalEfficiency', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                  {expandedInfo['thermalEfficiency'] && (
-                    <p className="mt-2 text-xs text-gray-400 bg-blue-900/20 p-2 rounded">{t.thermalEfficiencyInfo}</p>
-                  )}
-                </div>
-                <div className="p-3 bg-blue-900/20 rounded-lg border border-blue-500/30">
-                  <div className="text-sm">
-                    <span className="text-gray-400">{t.combustionPower}: </span>
-                    <span className="font-bold text-white">
-                      {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue) / 1000, 1)} MW
-                    </span>
-                  </div>
-                  <div className="text-sm mt-2">
-                    <span className="text-gray-400">{t.usableThermalPower}: </span>
-                    <span className="font-bold text-white">
-                      {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100), 1)} MW
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -1491,7 +1546,10 @@ const PyrolysisCalculator = () => {
                   <label htmlFor="initial-investment" className="block text-sm font-medium text-orange-300 mb-2">
                     {t.totalInvestment}: <span className="font-bold text-white">{formatNumber(inputs.initialInvestment)} €</span>
                   </label>
-                  <input id="initial-investment" name="initialInvestment" type="range" min="100000" max="20000000" step="10000" value={inputs.initialInvestment} onChange={(e) => handleInputChange('initialInvestment', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+                  <div className="flex items-center gap-3">
+                    <input id="initial-investment" name="initialInvestment" type="range" min="100000" max="20000000" step="10000" value={inputs.initialInvestment} onChange={(e) => handleInputChange('initialInvestment', e.target.value)} className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+                    <input type="number" min="100000" max="20000000" step="10000" value={inputs.initialInvestment} onChange={(e) => handleInputChange('initialInvestment', e.target.value)} className="w-32 px-2 py-1 text-sm text-white bg-gray-700 border border-orange-500/30 rounded text-right focus:outline-none focus:border-orange-400" />
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="feedstock-cost" className="block text-sm font-medium text-orange-300 mb-2">
@@ -1516,11 +1574,7 @@ const PyrolysisCalculator = () => {
                   </div>
                   <input id="maintenance-cost" name="maintenanceCost" type="range" min="5000" max="500999" step="500" value={inputs.maintenanceCost} onChange={(e) => handleInputChange('maintenanceCost', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
                   {(() => {
-                    let totalInvestment = inputs.initialInvestment;
-                    if (products.heat) totalInvestment += inputs.heatInvestment;
-                    if (products.electricity) totalInvestment += inputs.electricityInvestment;
-                    if (products.bioOil) totalInvestment += inputs.bioOilInvestment;
-                    const guidanceValue = totalInvestment * 0.025;
+                    const guidanceValue = inputs.initialInvestment * 0.025;
                     return (
                       <p className="mt-2 text-xs text-gray-400">
                         {language === 'de' ? 'Orientierungswert (2,5% der Gesamtinvestition): ' : 'Guidance value (2.5% of total investment): '}
@@ -1544,7 +1598,7 @@ const PyrolysisCalculator = () => {
                     <span className="font-bold text-white">
                       {formatNumber(
                         products.electricity
-                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours))
+                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - elecProductionKWh)
                           : inputs.electricalPower * inputs.operatingHours
                       )} kWh/{language === 'de' ? 'Jahr' : 'year'}
                     </span>
@@ -1554,7 +1608,7 @@ const PyrolysisCalculator = () => {
                     <span className="font-bold text-white">
                       {formatNumber(
                         products.electricity 
-                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours)) * inputs.electricityConsumptionPrice
+                          ? Math.max(0, inputs.electricalPower * inputs.operatingHours - elecProductionKWh) * inputs.electricityConsumptionPrice
                           : inputs.electricalPower * inputs.operatingHours * inputs.electricityConsumptionPrice
                       )} €/{language === 'de' ? 'Jahr' : 'year'}
                     </span>
@@ -1573,372 +1627,929 @@ const PyrolysisCalculator = () => {
               </div>
             </div>
 
-            {/* Biochar Parameters - Verkürzt */}
-            <div className="bg-gradient-to-br from-green-900/40 to-gray-800 p-5 rounded-lg border border-green-500/40">
-              <h2 className="text-xl font-semibold text-green-400 mb-4 flex items-center gap-2">
-                <Leaf className="w-5 h-5" />
-                {t.biocharParams}
-              </h2>
-              <div className="space-y-3">
-                <div>
-                  <label htmlFor="biochar-yield" className="block text-sm font-medium text-green-300 mb-2">
-                    {t.biocharYield}: <span className="font-bold text-white">{inputs.biocharYield}%</span>
-                  </label>
-                  <input id="biochar-yield" name="biocharYield" type="range" min="10" max="50" step="1" value={inputs.biocharYield} onChange={(e) => handleInputChange('biocharYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+            {/* ============================================ */}
+            {/* PROCESS FLOW DIAGRAM                        */}
+            {/* ============================================ */}
+            <div className="lg:col-span-3 flex flex-col items-center space-y-0">
+
+              {/* ── FEED INPUT BOX ── */}
+              <div className="w-full bg-gradient-to-r from-blue-900/50 to-blue-800/30 p-4 rounded-lg border border-blue-500/40 text-center">
+                <h3 className="text-lg font-bold text-blue-300 mb-1">
+                  {language === 'de' ? '📥 Biomasse-Eingang' : '📥 Biomass Feed'}
+                </h3>
+                <div className="flex justify-center gap-6 text-sm">
+                  <span className="text-gray-300">
+                    {language === 'de' ? 'Durchsatz' : 'Throughput'}: <span className="font-bold text-white">{formatNumber(inputs.plantCapacity)} kg/h</span>
+                    {inputs.fuelBulkDensity > 0 && (
+                      <span className="text-gray-400 ml-1">({(inputs.plantCapacity / inputs.fuelBulkDensity).toFixed(1)} m³/h)</span>
+                    )}
+                  </span>
+                  <span className="text-gray-300">
+                    {language === 'de' ? 'Feuerungsleistung' : 'Combustion Power'}: <span className="font-bold text-white">{(inputs.plantCapacity * inputs.fuelHeatValue / 1000).toFixed(2)} MW</span>
+                  </span>
                 </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="biochar-price" className="block text-sm font-medium text-green-300 mb-2">
-                      {t.biocharPrice}: <span className="font-bold text-white">{inputs.biocharPrice} €/t</span>
-                    </label>
-                    <button onClick={() => toggleInfo('biocharPrice')} className="text-green-400 hover:text-green-300 ml-2">
-                      <Info className="w-6 h-6" />
-                    </button>
-                  </div>
-                  <input id="biochar-price" name="biocharPrice" type="range" min="0" max="1000" step="10" value={inputs.biocharPrice} onChange={(e) => handleInputChange('biocharPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
-                  {expandedInfo['biocharPrice'] && (
-                    <p className="mt-2 text-xs text-gray-400 bg-green-900/20 p-2 rounded">{t.biocharPriceInfo}</p>
-                  )}
+              </div>
+
+              {/* Arrow: Feed → Pyrolysis */}
+              <div className="flex flex-col items-center py-1">
+                <div className="flex flex-col items-center">
+                  <div className="w-6 h-8 bg-blue-400"></div>
+                  <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-t-[14px] border-l-transparent border-r-transparent border-t-blue-400"></div>
                 </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="lca-factor" className="block text-sm font-medium text-green-300 mb-2">
-                      {t.lcaFactor}: <span className="font-bold text-white">{inputs.lcaFactor.toFixed(1)}</span>
+              </div>
+
+              {/* ── PYROLYSIS BOX ── */}
+              <div className="w-full bg-gradient-to-br from-orange-900/40 to-gray-800 p-5 rounded-lg border-2 border-orange-500/60">
+                <h2 className="text-xl font-bold text-orange-400 mb-1 text-center">
+                  🔥 {language === 'de' ? 'PYROLYSE' : 'PYROLYSIS'} (600°C – 700°C)
+                </h2>
+                <p className="text-xs text-gray-400 text-center mb-4">
+                  {language === 'de' ? 'Thermochemische Zersetzung unter Sauerstoffausschluss' : 'Thermochemical decomposition in absence of oxygen'}
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="biochar-yield" className="block text-sm font-medium text-orange-300 mb-2">
+                      {t.biocharYield}: <span className="font-bold text-white">{inputs.biocharYield}%</span>
                     </label>
-                    <button onClick={() => toggleInfo('lcaFactor')} className="text-green-400 hover:text-green-300 ml-2">
-                      <Info className="w-6 h-6" />
-                    </button>
+                    <input id="biochar-yield" name="biocharYield" type="range" min="10" max="50" step="1" value={inputs.biocharYield} onChange={(e) => handleInputChange('biocharYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
                   </div>
-                  <input id="lca-factor" name="lcaFactor" type="range" min="1" max="5" step="0.1" value={inputs.lcaFactor} onChange={(e) => handleInputChange('lcaFactor', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
-                  {expandedInfo['lcaFactor'] && (
-                    <div className="mt-2 text-xs text-gray-400 bg-green-900/20 p-2 rounded space-y-2">
-                      {language === 'de' ? (
-                        <>
-                          <p>
-                            <span className="font-semibold text-green-300">Definition:</span> Der LCA-Faktor beschreibt die tatsächliche CO₂-Senkenleistung der produzierten Biokohle unter Berücksichtigung aller Prozessemissionen.
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Was wird berücksichtigt?</span><br />
-                            • Biomasse-Logistik (Transport zur Anlage)<br />
-                            • Vorbehandlung und Trocknung<br />
-                            • Energieverbrauch der Pyrolyseanlage<br />
-                            • Nachbehandlung und Konfektionierung<br />
-                            • Transport und Ausbringung der Biokohle
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Berechnung:</span> Physikalisch entspricht 1 kg Kohlenstoff ≈ 3,67 kg CO₂. Abzüglich Lebenszyklusemissionen ergibt sich die netto CO₂-Senkenleistung.
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Typische Werte:</span><br />
-                            • Optimierte Anlagen: 2,5 - 3,0 tCO₂/t Biokohle<br />
-                            • Durchschnittliche Anlagen: 2,0 - 2,5 tCO₂/t Biokohle<br />
-                            • Konservativ: 2,4 tCO₂/t Biokohle (Standardwert)
-                          </p>
-                          <p className="text-yellow-400">
-                            <span className="font-semibold">Wichtig:</span> Projektspezifisch – erfordert detaillierte Lebenszyklusanalyse nach anerkannten Standards.
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p>
-                            <span className="font-semibold text-green-300">Definition:</span> The LCA factor describes the actual CO₂ removal performance of produced biochar considering all process emissions.
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">What is considered?</span><br />
-                            • Biomass logistics (transport to facility)<br />
-                            • Pre-treatment and drying<br />
-                            • Energy consumption of pyrolysis plant<br />
-                            • Post-treatment and packaging<br />
-                            • Transport and application of biochar
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Calculation:</span> Physically, 1 kg of carbon ≈ 3.67 kg CO₂. Minus lifecycle emissions equals net CO₂ removal performance.
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Typical Values:</span><br />
-                            • Optimized plants: 2.5 - 3.0 tCO₂/t biochar<br />
-                            • Average plants: 2.0 - 2.5 tCO₂/t biochar<br />
-                            • Conservative: 2.4 tCO₂/t biochar (standard value)
-                          </p>
-                          <p className="text-yellow-400">
-                            <span className="font-semibold">Important:</span> Project-specific – requires detailed lifecycle assessment per recognized standards.
-                          </p>
-                        </>
-                      )}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="biochar-carbon-content" className="block text-sm font-medium text-orange-300 mb-2">
+                        {t.biocharCarbonContent}: <span className="font-bold text-white">{inputs.biocharCarbonContent}%</span>
+                      </label>
+                      <button onClick={() => toggleInfo('biocharCarbonContent')} className="text-orange-400 hover:text-orange-300 ml-2">
+                        <Info className="w-6 h-6" />
+                      </button>
                     </div>
-                  )}
-                </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label className="block text-sm font-medium text-green-300 mb-2">
-                      {t.co2RemovalPrice}: <span className="font-bold text-white">{inputs.co2RemovalPrice} €/t CO₂</span>
-                    </label>
-                    <button onClick={() => toggleInfo('co2RemovalPrice')} className="text-green-400 hover:text-green-300 ml-2">
-                      <Info className="w-6 h-6" />
-                    </button>
-                  </div>
-                  <input id="co2-removal-price" name="co2RemovalPrice" type="range" min="10" max="500" step="10" value={inputs.co2RemovalPrice} onChange={(e) => handleInputChange('co2RemovalPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
-                  {expandedInfo['co2RemovalPrice'] && (
-                    <div className="mt-2 text-xs text-gray-400 bg-green-900/20 p-2 rounded space-y-2">
-                      {language === 'de' ? (
-                        <>
-                          <p>
-                            Der CO₂ Removal Credit Preis beschreibt den Marktwert für gehandelte CO₂-Entnahmezertifikate (Carbon Dioxide Removal, CDR).
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Marktpreise:</span> Die angegebenen Preise orientieren sich an aktuellen Marktdurchschnitten. Den tagesaktuellen Durchschnittspreis finden Sie auf der Website: <a href="https://www.cdr.fyi" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">www.cdr.fyi</a>
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">MRV und Handelskosten:</span> In der Berechnung werden 25% des CO₂ Removal Credit Preises für Monitoring, Reporting & Verification (MRV) sowie Handelsgebühren abgezogen. Dies spiegelt die tatsächlichen Kosten für die Verifizierung und den Handel der Zertifikate wider.
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Höhere Preise erzielen:</span> Es ist wichtig zu beachten, dass auch höhere Preise erzielbar sind. Diese hängen stark von der Vermarktungsstrategie des Gesamtprojekts ab, einschließlich:
-                          </p>
-                          <p className="ml-2">
-                            • Zertifizierungsstandards und deren Anerkennung<br />
-                            • Transparenz und Nachverfolgung (Tracking)<br />
-                            • Kundengruppe und deren Bereitschaft zu Premium-Zahlungen<br />
-                            • Langfristigkeit der Abnahmeverträge
-                          </p>
-                          <p>
-                            Eine professionelle Vermarktungsstrategie kann daher erheblich zu besseren Preisen beitragen.
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p>
-                            The CO₂ Removal Credit Price describes the market value for traded CO₂ removal certificates (Carbon Dioxide Removal, CDR).
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Market Prices:</span> The indicated prices are based on current market averages. Find the current average price for traded CO₂ removal certificates on: <a href="https://www.cdr.fyi" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">www.cdr.fyi</a>
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">MRV and Trading Costs:</span> In the calculation, 25% of the CO₂ Removal Credit Price is deducted for Monitoring, Reporting & Verification (MRV) and trading fees. This reflects the actual costs of verifying and trading the certificates.
-                          </p>
-                          <p>
-                            <span className="font-semibold text-green-300">Achieving Higher Prices:</span> It is important to note that higher prices are achievable. These depend largely on the marketing strategy of your overall project, including:
-                          </p>
-                          <p className="ml-2">
-                            • Certification standards and their recognition<br />
-                            • Transparency and tracking<br />
-                            • Customer segment and willingness to pay premiums<br />
-                            • Long-term offtake agreements
-                          </p>
-                          <p>
-                            A professional marketing strategy can contribute significantly to better prices.
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <div className="p-3 bg-green-900/20 rounded-lg border border-green-500/30">
-                  <div className="text-sm">
-                    <span className="text-gray-400">{t.biocharProduction}: </span>
-                    <span className="font-bold text-white">
-                      {formatNumber((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000, 1)} t/{language === 'de' ? 'Jahr' : 'year'}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-3 bg-green-900/20 rounded-lg border border-green-500/30">
-                  <div className="text-sm">
-                    <span className="text-gray-400">{language === 'de' ? 'Umsatz Biokohle' : 'Biochar Sales'}: </span>
-                    <span className="font-bold text-white">
-                      {formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * inputs.biocharPrice)} €/{language === 'de' ? 'Jahr' : 'year'}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-3 bg-green-900/20 rounded-lg border border-green-500/30">
-                  <div className="text-sm">
-                    <span className="text-gray-400">{language === 'de' ? 'CO₂ Entfernt' : 'CO₂ Removed'}: </span>
-                    <span className="font-bold text-white">
-                      {formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * inputs.lcaFactor, 1)} t CO₂/{language === 'de' ? 'Jahr' : 'year'}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-3 bg-green-900/20 rounded-lg border border-green-500/30">
-                  <div className="text-sm">
-                    <span className="text-gray-400">{t.certificateRevenue}: </span>
-                    <span className="font-bold text-white">
-                      {formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * inputs.lcaFactor * inputs.co2RemovalPrice * 0.75)} €/{language === 'de' ? 'Jahr' : 'year'}
-                    </span>
+                    <input id="biochar-carbon-content" name="biocharCarbonContent" type="range" min="0" max="100" step="1" value={inputs.biocharCarbonContent} onChange={(e) => handleInputChange('biocharCarbonContent', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+                    {expandedInfo['biocharCarbonContent'] && (
+                      <div className="mt-2 text-xs text-gray-400 bg-orange-900/20 p-2 rounded">
+                        <p className="mb-2">
+                          {language === 'de'
+                            ? 'Der Kohlenstoffanteil (C-Anteil) in der Biokohle variiert stark je nach Ausgangsmaterial. Unterschiedliche Biomassen enthalten unterschiedlich hohe mineralische (Asche-)Anteile. Während der Pyrolyse werden diese mineralischen Bestandteile in der Kohle aufkonzentriert – der organische Anteil wird teils in Gas umgewandelt, die Mineralien bleiben jedoch vollständig in der Kohle. Je höher der Aschegehalt der Biomasse, desto niedriger der C-Anteil in der resultierenden Biokohle.'
+                            : 'The carbon content (C-content) in biochar varies significantly depending on the feedstock. Different biomasses contain varying amounts of mineral (ash) components. During pyrolysis, these minerals become concentrated in the char – organic matter is partly converted to gas, but minerals remain entirely in the char. The higher the ash content of the biomass, the lower the C-content in the resulting biochar.'}
+                        </p>
+                        <table className="w-full text-xs border-collapse mt-2">
+                          <thead>
+                            <tr className="border-b border-gray-600">
+                              <th className="text-left py-1 pr-2 text-orange-300">{language === 'de' ? 'Biomasse / Kohle' : 'Biomass / Char'}</th>
+                              <th className="text-center py-1 px-2 text-orange-300">{language === 'de' ? 'Asche-gehalt Kohle' : 'Ash Content Char'}</th>
+                              <th className="text-center py-1 px-2 text-orange-300">{language === 'de' ? 'C-Anteil Kohle' : 'C-Content Char'}</th>
+                              <th className="text-left py-1 pl-2 text-orange-300">{language === 'de' ? 'Anmerkung' : 'Note'}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { biomass: language === 'de' ? 'Klärschlamm-Kohle' : 'Sewage Sludge Char', ash: '50–70%', carbon: '30–50%', note: language === 'de' ? 'Sehr hoher Mineralanteil (P, Ca, Si)' : 'Very high mineral content (P, Ca, Si)' },
+                              { biomass: language === 'de' ? 'Gärrest-Kohle' : 'Digestate Char', ash: '35–55%', carbon: '45–65%', note: language === 'de' ? 'Nährstoffreich, hoher Ascheanteil' : 'Nutrient-rich, high ash content' },
+                              { biomass: language === 'de' ? 'Hühnermist-Kohle' : 'Poultry Manure Char', ash: '30–50%', carbon: '50–70%', note: language === 'de' ? 'Hoher Mineralanteil (Ca, P, K)' : 'High mineral content (Ca, P, K)' },
+                              { biomass: language === 'de' ? 'Stroh-Kohle' : 'Straw Char', ash: '15–25%', carbon: '75–85%', note: language === 'de' ? 'Mittlerer Silizium-Anteil' : 'Medium silicon content' },
+                              { biomass: language === 'de' ? 'Landschaftspflege-Kohle' : 'Landscape Mgmt. Char', ash: '8–18%', carbon: '82–92%', note: language === 'de' ? 'Variabel je nach Mischung' : 'Variable depending on mix' },
+                              { biomass: language === 'de' ? 'Altholz-Kohle (A1–A2)' : 'Waste Wood Char (A1–A2)', ash: '5–12%', carbon: '88–95%', note: language === 'de' ? 'Leichte Verunreinigungen möglich' : 'Minor contamination possible' },
+                              { biomass: language === 'de' ? 'Waldrestholz-Kohle' : 'Forest Residue Char', ash: '3–8%', carbon: '92–97%', note: language === 'de' ? 'Gute Qualität, etwas Rinde' : 'Good quality, some bark' },
+                              { biomass: language === 'de' ? 'Saubere Hackschnitzel-Kohle' : 'Clean Woodchip Char', ash: '1–4%', carbon: '96–99%', note: language === 'de' ? 'Niedrigster Aschegehalt, höchster C-Anteil' : 'Lowest ash, highest C-content' },
+                            ].map((row, i) => (
+                              <tr key={i} className="border-b border-gray-700/50">
+                                <td className="py-1 pr-2 text-gray-300">{row.biomass}</td>
+                                <td className="py-1 px-2 text-center text-gray-300">{row.ash}</td>
+                                <td className="py-1 px-2 text-center font-semibold text-orange-300">{row.carbon}</td>
+                                <td className="py-1 pl-2 text-gray-500">{row.note}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <p className="mt-2 text-gray-500 italic">
+                          {language === 'de'
+                            ? '→ Je sauberer das Holz, desto höher der C-Anteil in der Biokohle und desto mehr CO₂-Zertifikate können generiert werden.'
+                            : '→ The cleaner the wood, the higher the C-content in biochar and the more CO₂ removal certificates can be generated.'}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Heat Parameters wenn aktiviert */}
-            {products.heat && (
-              <div className="bg-gradient-to-br from-red-900/30 to-gray-800 p-5 rounded-lg border border-red-500/30">
-                <h2 className="text-xl font-semibold text-red-400 mb-4 flex items-center gap-2">
-                  <Flame className="w-5 h-5" />
-                  {t.heatParams}
-                </h2>
-                <div className="space-y-3">
+              {/* Arrows: Pyrolysis → Biochar (left) + Pyrolysis Gas (right) + Autothermie (far right) */}
+              <div className="w-full grid grid-cols-6 gap-0">
+                <div className="col-start-2 flex flex-col items-center py-1">
+                  <div className="w-6 h-8 bg-green-400"></div>
+                  <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-t-[14px] border-l-transparent border-r-transparent border-t-green-400"></div>
+                  <span className="text-sm font-bold text-green-300 mt-0.5">
+                    {language === 'de' ? 'Biokohle' : 'Biochar'}: {formatNumber(inputs.plantCapacity * inputs.biocharYield / 100)} kg/h
+                  </span>
+                  <span className="text-sm font-semibold text-green-400">
+                    {((inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue) / (1000 * 3.6)).toFixed(2)} MW
+                  </span>
+                  <span className="text-xs text-green-300/70">
+                    {formatNumber(((inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue) / (1000 * 3.6)) * inputs.operatingHours)} MWh/{language === 'de' ? 'a' : 'yr'}
+                  </span>
+                </div>
+                <div className="col-start-4 flex flex-col items-center py-1">
+                  <div className="w-6 h-8 bg-red-400"></div>
+                  <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-t-[14px] border-l-transparent border-r-transparent border-t-red-400"></div>
+                  <span className="text-sm font-bold text-red-300 mt-0.5">
+                    {language === 'de' ? 'Pyrolysegas' : 'Pyrolysis Gas'}: {formatNumber(inputs.plantCapacity * (1 - inputs.biocharYield / 100))} kg/h
+                  </span>
+                  <span className="text-sm font-semibold text-red-400">
+                    {((inputs.plantCapacity * inputs.fuelHeatValue / 1000) - (inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue / (1000 * 3.6))).toFixed(2)} MW
+                  </span>
+                  <span className="text-xs text-red-300/70">
+                    {formatNumber(((inputs.plantCapacity * inputs.fuelHeatValue / 1000) - (inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue / (1000 * 3.6))) * inputs.operatingHours)} MWh/{language === 'de' ? 'a' : 'yr'}
+                  </span>
+                </div>
+                {/* Autothermie arrow – only shown here when oil condensation is NOT active */}
+                {!products.bioOil && (
+                <div className="col-start-6 flex flex-col items-center py-1">
+                  <span className="text-xs text-yellow-500 mb-0.5">{language === 'de' ? 'zur Pyrolyse ↑' : 'to Pyrolysis ↑'}</span>
+                  <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-b-[14px] border-l-transparent border-r-transparent border-b-yellow-500"></div>
+                  <div className="w-6 h-8 bg-yellow-500"></div>
+                  <span className="text-sm font-bold text-yellow-400 mt-0.5 text-center leading-tight">
+                    {language === 'de' ? 'Prozessenergie' : 'Process Energy'}
+                  </span>
+                  <span className="text-sm font-bold text-yellow-400 text-center leading-tight">
+                    {language === 'de' ? 'Autothermie' : 'Autothermal'}
+                  </span>
+                  <span className="text-sm font-semibold text-yellow-300">
+                    {(pyrolysisGasEnergyMW * (inputs.autothermalShare / 100)).toFixed(2)} MW
+                  </span>
+                  <span className="text-xs text-yellow-300/70">
+                    {formatNumber((pyrolysisGasEnergyMW * (inputs.autothermalShare / 100)) * inputs.operatingHours)} MWh/{language === 'de' ? 'a' : 'yr'}
+                  </span>
+                </div>
+                )}
+              </div>
+
+              {/* Side-by-side: BIOCHAR box (left) | GAS PATH (right) */}
+              <div className="w-full grid grid-cols-2 gap-4 overflow-visible">
+
+                {/* ── LEFT: BIOCHAR BOX ── */}
+                <div className="bg-gradient-to-br from-green-900/40 to-gray-800 p-4 rounded-lg border border-green-500/40 space-y-3">
+                  <h3 className="text-lg font-bold text-green-400 flex items-center gap-2">
+                    <Leaf className="w-5 h-5" /> {language === 'de' ? 'Biokohle' : 'Biochar'}
+                  </h3>
+                  {/* Biochar Heating Value */}
                   <div>
-                    <label htmlFor="heat-yield" className="block text-sm font-medium text-red-300 mb-2">
-                      {t.heatSoldPercentage}: <span className="font-bold text-white">{inputs.heatYield}%</span>
+                    <label htmlFor="biochar-heating-value" className="block text-sm font-medium text-green-300 mb-1">
+                      {t.biocharHeatingValue}: <span className="font-bold text-white">{inputs.biocharHeatingValue} MJ/kg</span>
                     </label>
-                    <input id="heat-yield" name="heatYield" type="range" min="0" max="100" step="1" value={inputs.heatYield} onChange={(e) => handleInputChange('heatYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-500" />
+                    <input id="biochar-heating-value" name="biocharHeatingValue" type="range" min="0" max="35" step="1" value={inputs.biocharHeatingValue} onChange={(e) => handleInputChange('biocharHeatingValue', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                  </div>
+                  {/* Biochar Bulk Density */}
+                  <div>
+                    <label htmlFor="biochar-bulk-density" className="block text-sm font-medium text-green-300 mb-1">
+                      {t.biocharBulkDensity}: <span className="font-bold text-white">{inputs.biocharBulkDensity} kg/m³</span>
+                    </label>
+                    <input id="biochar-bulk-density" name="biocharBulkDensity" type="range" min="0" max="700" step="10" value={inputs.biocharBulkDensity} onChange={(e) => handleInputChange('biocharBulkDensity', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                  </div>
+                  {/* Biochar Price */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="biochar-price" className="block text-sm font-medium text-green-300 mb-1">
+                        {t.biocharPrice}: <span className="font-bold text-white">{inputs.biocharPrice} €/t</span>
+                      </label>
+                      <button onClick={() => toggleInfo('biocharPrice')} className="text-green-400 hover:text-green-300 ml-1">
+                        <Info className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <input id="biochar-price" name="biocharPrice" type="range" min="0" max="1000" step="10" value={inputs.biocharPrice} onChange={(e) => handleInputChange('biocharPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                    {expandedInfo['biocharPrice'] && (
+                      <p className="mt-1 text-xs text-gray-400 bg-green-900/20 p-2 rounded">{t.biocharPriceInfo}</p>
+                    )}
+                  </div>
+                  {/* LCA Factor */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="lca-factor" className="block text-sm font-medium text-green-300 mb-1">
+                        {t.lcaFactor}: <span className="font-bold text-white">{inputs.lcaFactor.toFixed(1)}</span>
+                      </label>
+                      <button onClick={() => toggleInfo('lcaFactor')} className="text-green-400 hover:text-green-300 ml-1">
+                        <Info className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <input id="lca-factor" name="lcaFactor" type="range" min="1" max="3.6" step="0.1" value={inputs.lcaFactor} onChange={(e) => handleInputChange('lcaFactor', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                    {expandedInfo['lcaFactor'] && (
+                      <div className="mt-1 text-xs text-gray-400 bg-green-900/20 p-2 rounded space-y-1">
+                        {language === 'de' ? (
+                          <>
+                            <p><span className="font-semibold text-green-300">Definition:</span> Tatsächliche CO₂-Senkenleistung unter Berücksichtigung aller Prozessemissionen.</p>
+                            <p className="mt-1"><span className="font-semibold text-green-300">Formel:</span></p>
+                            <p className="font-mono text-green-200 bg-gray-900/50 px-2 py-1 rounded text-[11px]">LCA Factor = C_biochar + C_avoided_decomposition + E_coproducts − E_process</p>
+                            <ul className="list-disc list-inside mt-1 space-y-0.5 text-gray-400">
+                              <li><span className="text-green-300">C_biochar</span> – Dauerhaft im Biochar gebundener Kohlenstoff (Hauptsenke)</li>
+                              <li><span className="text-green-300">C_avoided_decomposition</span> – Vermiedene Emissionen durch Verhinderung der natürlichen Zersetzung der Biomasse</li>
+                              <li><span className="text-green-300">E_coproducts</span> – Gutschriften durch Koppelprodukte (Wärme, Strom, Öl), die fossile Energie ersetzen</li>
+                              <li><span className="text-green-300">E_process</span> – Prozessemissionen (Transport, Vorbehandlung, Eigenverbrauch, Methan-Schlupf)</li>
+                            </ul>
+                            <p><span className="font-semibold text-green-300">Typische Werte:</span> Optimiert: 2,5–3,0 · Durchschnitt: 2,0–2,5 · Konservativ: 2,4 tCO₂/t</p>
+                          </>
+                        ) : (
+                          <>
+                            <p><span className="font-semibold text-green-300">Definition:</span> Actual CO₂ removal performance considering all process emissions.</p>
+                            <p className="mt-1"><span className="font-semibold text-green-300">Formula:</span></p>
+                            <p className="font-mono text-green-200 bg-gray-900/50 px-2 py-1 rounded text-[11px]">LCA Factor = C_biochar + C_avoided_decomposition + E_coproducts − E_process</p>
+                            <ul className="list-disc list-inside mt-1 space-y-0.5 text-gray-400">
+                              <li><span className="text-green-300">C_biochar</span> – Carbon permanently stored in biochar (main sink)</li>
+                              <li><span className="text-green-300">C_avoided_decomposition</span> – Avoided emissions by preventing natural biomass decomposition</li>
+                              <li><span className="text-green-300">E_coproducts</span> – Credits from co-products (heat, electricity, oil) replacing fossil energy</li>
+                              <li><span className="text-green-300">E_process</span> – Process emissions (transport, pre-treatment, self-consumption, methane slip)</li>
+                            </ul>
+                            <p><span className="font-semibold text-green-300">Typical Values:</span> Optimized: 2.5–3.0 · Average: 2.0–2.5 · Conservative: 2.4 tCO₂/t</p>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {/* CO2 Removal Price */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <label className="block text-sm font-medium text-green-300 mb-1">
+                        {t.co2RemovalPrice}: <span className="font-bold text-white">{inputs.co2RemovalPrice} €/t</span>
+                      </label>
+                      <button onClick={() => toggleInfo('co2RemovalPrice')} className="text-green-400 hover:text-green-300 ml-1">
+                        <Info className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <input id="co2-removal-price" name="co2RemovalPrice" type="range" min="10" max="500" step="10" value={inputs.co2RemovalPrice} onChange={(e) => handleInputChange('co2RemovalPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                    {expandedInfo['co2RemovalPrice'] && (
+                      <div className="mt-1 text-xs text-gray-400 bg-green-900/20 p-2 rounded space-y-1">
+                        {language === 'de' ? (
+                          <p>Marktdurchschnitt auf <a href="https://www.cdr.fyi" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">www.cdr.fyi</a>. Höhere Preise durch professionelle Vermarktung möglich.</p>
+                        ) : (
+                          <p>Market average on <a href="https://www.cdr.fyi" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">www.cdr.fyi</a>. Higher prices achievable through professional marketing.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div>
-                    <label htmlFor="heat-price" className="block text-sm font-medium text-red-300 mb-2">
-                      {t.heatSalePrice}: <span className="font-bold text-white">{inputs.heatPrice.toFixed(3)} €/kWh</span>
-                    </label>
-                    <input id="heat-price" name="heatPrice" type="range" min="0.01" max="0.5" step="0.01" value={inputs.heatPrice} onChange={(e) => handleInputChange('heatPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-500" />
+                    <div className="flex items-center justify-between">
+                      <label className="block text-sm font-medium text-green-300 mb-1">
+                        {t.certificateFeeRate}:{" "}
+                        <span className="font-bold text-white">{inputs.certificateFeeRate}%</span>
+                      </label>
+                      <button
+                        onClick={() => toggleInfo('certificateFeeRate')}
+                        className="text-green-400 hover:text-green-300 ml-1"
+                      >
+                        <Info className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <input
+                      id="certificate-fee-rate"
+                      name="certificateFeeRate"
+                      type="range"
+                      min="0"
+                      max="50"
+                      step="1"
+                      value={inputs.certificateFeeRate}
+                      onChange={(e) => handleInputChange('certificateFeeRate', e.target.value)}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500"
+                    />
+                    {expandedInfo['certificateFeeRate'] && (
+                      <p className="mt-1 text-xs text-gray-400 bg-green-900/20 p-2 rounded">
+                        {t.certificateFeeRateInfo}
+                      </p>
+                    )}
                   </div>
-                  <div>
-                    <label htmlFor="heat-investment" className="block text-sm font-medium text-red-300 mb-2">
-                      {t.additionalInvestment} (Wärme): <span className="font-bold text-white">{formatNumber(inputs.heatInvestment)} €</span>
-                    </label>
-                    <input id="heat-investment" name="heatInvestment" type="range" min="0" max="500000" step="5000" value={inputs.heatInvestment} onChange={(e) => handleInputChange('heatInvestment', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-500" />
-                  </div>
-                  <div className="p-3 bg-red-900/20 rounded-lg border border-red-500/30">
-                    <div className="text-sm">
-                      <span className="text-gray-400">{language === 'de' ? 'Wärmeverkauf' : 'Heat Sales'}: </span>
-                      <span className="font-bold text-white">
-                        {formatNumber(((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100)) * 1000 * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice)} €/{language === 'de' ? 'Jahr' : 'year'}
-                      </span>
+                  {/* KPI Summary */}
+                  <div className="space-y-2 pt-1">
+                    <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
+                      <span className="text-gray-400">{t.biocharProduction}: </span>
+                      <span className="font-bold text-white">{formatNumber((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000, 1)} t/{language === 'de' ? 'a' : 'yr'}</span>
+                    </div>
+                    <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
+                      <span className="text-gray-400">{language === 'de' ? 'Jahresvolumen' : 'Annual Volume'}: </span>
+                      <span className="font-bold text-white">{inputs.biocharBulkDensity > 0 ? formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) / (inputs.biocharBulkDensity / 1000), 0) : '–'} m³/{language === 'de' ? 'a' : 'yr'}</span>
+                    </div>
+                    <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
+                      <span className="text-gray-400">{language === 'de' ? 'Umsatz' : 'Sales'}: </span>
+                      <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * inputs.biocharPrice)} €/{language === 'de' ? 'a' : 'yr'}</span>
+                    </div>
+                    <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
+                      <span className="text-gray-400">CO₂: </span>
+                      <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * (inputs.biocharCarbonContent / 100), 1)} t/{language === 'de' ? 'a' : 'yr'}</span>
+                    </div>
+                    <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
+                      <span className="text-gray-400">{t.certificateRevenue}: </span>
+                      <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * (inputs.biocharCarbonContent / 100) * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100))} €/{language === 'de' ? 'a' : 'yr'}</span>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Electricity Parameters wenn aktiviert */}
-            {products.electricity && (
-              <div className="bg-gradient-to-br from-yellow-900/30 to-gray-800 p-5 rounded-lg border border-yellow-500/30">
-                <h2 className="text-xl font-semibold text-yellow-400 mb-4 flex items-center gap-2">
-                  <Zap className="w-5 h-5" />
-                  {t.electricityParams}
-                </h2>
-                <div className="space-y-3">
-                  <div>
-                    <label htmlFor="electricity-yield" className="block text-sm font-medium text-yellow-300 mb-2">
-                      {t.electricityYield}: <span className="font-bold text-white">{inputs.electricityYield}%</span>
-                    </label>
-                    <input id="electricity-yield" name="electricityYield" type="range" min="5" max="50" step="1" value={inputs.electricityYield} onChange={(e) => handleInputChange('electricityYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
-                  </div>
-                  <div>
-                    <label htmlFor="electricity-price" className="block text-sm font-medium text-yellow-300 mb-2">
-                      {t.electricityPrice}: <span className="font-bold text-white">{inputs.electricityPrice.toFixed(2)} €/kWh</span>
-                    </label>
-                    <input id="electricity-price" name="electricityPrice" type="range" min="0.05" max="0.5" step="0.01" value={inputs.electricityPrice} onChange={(e) => handleInputChange('electricityPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
-                  </div>
-                  <div>
-                    <label htmlFor="electricity-investment" className="block text-sm font-medium text-yellow-300 mb-2">
-                      {t.additionalInvestment} (Strom): <span className="font-bold text-white">{formatNumber(inputs.electricityInvestment)} €</span>
-                    </label>
-                    <input id="electricity-investment" name="electricityInvestment" type="range" min="20000" max="1000000" step="10000" value={inputs.electricityInvestment} onChange={(e) => handleInputChange('electricityInvestment', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
-                  </div>
-                  <div className="p-3 bg-yellow-900/20 rounded-lg border border-yellow-500/30">
-                    <div className="text-sm">
-                      <span className="text-gray-400">{t.electricityProduction}: </span>
-                      <span className="font-bold text-white">
-                        {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
-                      </span>
-                    </div>
-                    <div className="text-sm mt-2">
-                      <span className="text-gray-400">{language === 'de' ? 'Bruttostromverbrauch: ' : 'Gross El. Consumption: '}</span>
-                      <span className="font-bold text-white">
-                        {formatNumber(inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
-                      </span>
-                    </div>
-                    {((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours) > (inputs.electricalPower * inputs.operatingHours) && (
-                      <>
-                        <div className="text-sm mt-2">
-                          <span className="text-gray-400">{language === 'de' ? 'Stromüberschuss: ' : 'Electricity Surplus: '}</span>
-                          <span className="font-bold text-green-400">
-                            {formatNumber((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'Jahr' : 'year'}
+                {/* ── RIGHT: GAS PATH (Oil → Combustion → Heat Exchanger → Electricity) ── */}
+                <div className="flex flex-col items-center space-y-0 overflow-visible">
+
+                  {/* Optional: Oil Condensation Box */}
+                  {products.bioOil && (
+                    <>
+                      <div className="w-full flex gap-2 overflow-visible">
+                        {/* Oil Condensation – 75% width */}
+                        <div className="w-3/4 flex flex-col">
+                          <div className="w-full bg-gradient-to-br from-purple-900/40 to-gray-800 p-4 rounded-lg border border-purple-500/40 space-y-3">
+                            <h3 className="text-lg font-bold text-purple-400 flex items-center gap-2">
+                              <Droplets className="w-5 h-5" /> {language === 'de' ? 'Öl-Kondensation' : 'Oil Condensation'}
+                            </h3>
+                            <div>
+                              <label htmlFor="bio-oil-yield" className="block text-sm font-medium text-purple-300 mb-1">
+                                {t.bioOilYield}: <span className="font-bold text-white">{inputs.bioOilYield}%</span>
+                              </label>
+                              <input id="bio-oil-yield" name="bioOilYield" type="range" min="10" max="50" step="1" value={inputs.bioOilYield} onChange={(e) => handleInputChange('bioOilYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                            </div>
+                            <div>
+                              <label htmlFor="bio-oil-price" className="block text-sm font-medium text-purple-300 mb-1">
+                                {t.bioOilPrice}: <span className="font-bold text-white">{inputs.bioOilPrice} €/t</span>
+                              </label>
+                              <input id="bio-oil-price" name="bioOilPrice" type="range" min="100" max="1000" step="10" value={inputs.bioOilPrice} onChange={(e) => handleInputChange('bioOilPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                            </div>
+                            <div>
+                              <label htmlFor="bio-oil-heating-value" className="block text-sm font-medium text-purple-300 mb-1">
+                                {t.bioOilHeatingValue}: <span className="font-bold text-white">{inputs.bioOilHeatingValue} MJ/kg</span>
+                              </label>
+                              <input id="bio-oil-heating-value" name="bioOilHeatingValue" type="range" min="5" max="40" step="1" value={inputs.bioOilHeatingValue} onChange={(e) => handleInputChange('bioOilHeatingValue', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                            </div>
+                            <div className="p-2 bg-purple-900/20 rounded border border-purple-500/30 text-sm">
+                              <span className="text-gray-400">{language === 'de' ? 'Produktion' : 'Production'}: </span>
+                              <span className="font-bold text-white">{formatNumber((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100), 1)} t/{language === 'de' ? 'a' : 'yr'}</span>
+                              <span className="text-gray-400 ml-3">{language === 'de' ? 'Umsatz' : 'Sales'}: </span>
+                              <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100)) * inputs.bioOilPrice)} €/{language === 'de' ? 'a' : 'yr'}</span>
+                            </div>
+                            <div className="p-2 bg-purple-900/20 rounded border border-purple-500/30 text-sm">
+                              <span className="text-gray-400">{language === 'de' ? 'Feuerungsleistung Öl' : 'Oil Combustion Power'}: </span>
+                              <span className="font-bold text-white">{oilEnergyMW.toFixed(2)} MW</span>
+                            </div>
+                          </div>
+                          {/* Arrow: Oil → Combustion */}
+                          <div className="flex flex-col items-center py-1">
+                            <div className="flex flex-col items-center">
+                              <div className="w-5 h-6 bg-red-400"></div>
+                              <div className="w-0 h-0 border-l-[14px] border-r-[14px] border-t-[10px] border-l-transparent border-r-transparent border-t-red-400"></div>
+                              <span className="text-xs text-gray-500">{language === 'de' ? 'Restgas' : 'Remaining Gas'}</span>
+                              <span className="text-xs font-semibold text-red-300">
+                                {residualGasEnergyMW.toFixed(2)} MW
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Autothermie arrow – passes right of Oil Condensation from Combustion → Pyrolysis */}
+                        <div className="w-1/4 flex flex-col items-center py-1 -mt-[75px] z-10">
+                          <div className="flex flex-col items-center flex-1">
+                            <span className="text-xs text-yellow-500 mb-0.5">{language === 'de' ? 'zur Pyrolyse ↑' : 'to Pyrolysis ↑'}</span>
+                            <div className="w-0 h-0 border-l-[14px] border-r-[14px] border-b-[12px] border-l-transparent border-r-transparent border-b-yellow-500"></div>
+                            <div className="w-5 flex-1 bg-yellow-500/80 rounded-sm min-h-[40px]"></div>
+                          </div>
+                          <span className="text-xs font-bold text-yellow-400 text-center leading-tight">
+                            {language === 'de' ? 'Autothermie' : 'Autothermal'}
+                          </span>
+                          <span className="text-xs font-semibold text-yellow-300 text-center">
+                            {(residualGasEnergyMW * (inputs.autothermalShare / 100)).toFixed(2)} MW
+                          </span>
+                          <span className="text-[10px] text-yellow-300/70 text-center">
+                            {formatNumber((residualGasEnergyMW * (inputs.autothermalShare / 100)) * inputs.operatingHours)} MWh/{language === 'de' ? 'a' : 'yr'}
                           </span>
                         </div>
-                        <div className="text-sm mt-2">
-                          <span className="text-gray-400">{t.electricitySalesRevenue}: </span>
-                          <span className="font-bold text-green-400">
-                            {formatNumber(((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice)} €/{language === 'de' ? 'Jahr' : 'year'}
-                          </span>
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── COMBUSTION BOX ── */}
+                  <div className="w-full bg-gradient-to-br from-red-900/40 to-gray-800 p-4 rounded-lg border-2 border-red-500/50 space-y-3">
+                    <h3 className="text-lg font-bold text-red-400 flex items-center gap-2">
+                      <Flame className="w-5 h-5" /> {language === 'de' ? 'Verbrennung' : 'Combustion'}
+                    </h3>
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <label htmlFor="autothermal-share" className="block text-sm font-medium text-red-300 mb-1">
+                          {t.autothermalShare}: <span className="font-bold text-white">{inputs.autothermalShare}%</span>
+                        </label>
+                        <button onClick={() => toggleInfo('autothermalShare')} className="text-red-400 hover:text-red-300 ml-2">
+                          <Info className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <input id="autothermal-share" name="autothermalShare" type="range" min="0" max="20" step="1" value={inputs.autothermalShare} onChange={(e) => handleInputChange('autothermalShare', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-500" />
+                      {expandedInfo['autothermalShare'] && (
+                        <p className="mt-1 text-xs text-gray-400 bg-red-900/20 p-2 rounded">
+                          {language === 'de'
+                            ? 'Pyrolyse ist ein endothermer Prozess – die thermochemische Zersetzung der Biomasse erfordert kontinuierliche Wärmezufuhr, um die Bindungsenergien der organischen Moleküle zu überwinden. Bei autothermen Anlagen wird ein Teil der im Pyrolysegas enthaltenen Energie durch Verbrennung rückgeführt, um den Reaktor auf Betriebstemperatur (600–700 °C) zu halten. Der Prozesswärmeanteil liegt typischerweise bei 5–15 % der Pyrolysegas-Energie und hängt von Faktoren wie Biomassefeuchte, Reaktorbauart und Isolierung ab.'
+                            : 'Pyrolysis is an endothermic process – the thermochemical decomposition of biomass requires continuous heat input to overcome the bond energies of organic molecules. In autothermal systems, a portion of the energy contained in the pyrolysis gas is recirculated via combustion to maintain the reactor at operating temperature (600–700 °C). The process heat share is typically 5–15 % of pyrolysis gas energy and depends on factors such as biomass moisture content, reactor design, and insulation.'}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Arrow: Combustion → Heat Exchanger */}
+                  <div className="flex flex-col items-center py-1">
+                    <div className="w-5 h-6 bg-orange-400"></div>
+                    <div className="w-0 h-0 border-l-[14px] border-r-[14px] border-t-[10px] border-l-transparent border-r-transparent border-t-orange-400"></div>
+                    <span className="text-sm font-bold text-orange-300">{language === 'de' ? 'Wärmestrom' : 'Heat Flow'}</span>
+                    <span className="text-base font-bold text-orange-400">
+                      {waermestromMW.toFixed(2)} MW
+                    </span>
+                    <span className="text-xs text-orange-300/70">
+                      {formatNumber(waermestromMW * inputs.operatingHours)} MWh/{language === 'de' ? 'a' : 'yr'}
+                    </span>
+                  </div>
+
+                  {/* ── ELECTRICITY GENERATION BOX (if active) ── */}
+                  {products.electricity && (
+                    <>
+                      <div className="w-full bg-gradient-to-br from-yellow-900/40 to-gray-800 p-4 rounded-lg border border-yellow-500/40 space-y-3">
+                        <h3 className="text-lg font-bold text-yellow-400 flex items-center gap-2">
+                          <Zap className="w-5 h-5" /> {language === 'de' ? 'Stromgenerierung' : 'Power Generation'}
+                        </h3>
+                        <div>
+                          <label htmlFor="electricity-yield" className="block text-sm font-medium text-yellow-300 mb-1">
+                            {t.electricityYield}: <span className="font-bold text-white">{inputs.electricityYield}%</span>
+                          </label>
+                          <input id="electricity-yield" name="electricityYield" type="range" min="5" max="50" step="1" value={inputs.electricityYield} onChange={(e) => handleInputChange('electricityYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
+                        </div>
+                        <div>
+                          <label htmlFor="electricity-price" className="block text-sm font-medium text-yellow-300 mb-1">
+                            {t.electricityPrice}: <span className="font-bold text-white">{inputs.electricityPrice.toFixed(2)} €/kWh</span>
+                          </label>
+                          <input id="electricity-price" name="electricityPrice" type="range" min="0.05" max="0.5" step="0.01" value={inputs.electricityPrice} onChange={(e) => handleInputChange('electricityPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
+                        </div>
+                        <div className="p-2 bg-yellow-900/20 rounded border border-yellow-500/30 text-sm space-y-1">
+                          <div>
+                            <span className="text-gray-400">{language === 'de' ? 'Elektrische Leistung' : 'Electrical Power'}: </span>
+                            <span className="font-bold text-white">
+                              {formatNumber(elecPowerKW)} kW
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">{t.electricityProduction}: </span>
+                            <span className="font-bold text-white">
+                              {formatNumber(elecProductionKWh)} kWh/{language === 'de' ? 'a' : 'yr'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">{language === 'de' ? 'Eigenverbrauch' : 'Self-consumption'}: </span>
+                            <span className="font-bold text-white">{formatNumber(inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'a' : 'yr'}</span>
+                          </div>
+                          {elecProductionKWh > (inputs.electricalPower * inputs.operatingHours) && (
+                            <div>
+                              <span className="text-gray-400">{language === 'de' ? 'Überschuss' : 'Surplus'}: </span>
+                              <span className="font-bold text-green-400">
+                                {formatNumber(elecProductionKWh - inputs.electricalPower * inputs.operatingHours)} kWh/{language === 'de' ? 'a' : 'yr'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {elecProductionKWh >= (inputs.electricalPower * inputs.operatingHours) ? (
+                          <div className="p-2 bg-green-900/30 border border-green-500/30 rounded text-sm text-green-300 font-semibold">
+                            ✓ {language === 'de' ? 'Strombedarf vollständig gedeckt' : 'Power demand fully covered'}
+                          </div>
+                        ) : (
+                          <div className="p-2 bg-orange-900/30 border border-orange-500/30 rounded text-sm text-orange-300 font-semibold">
+                            ⚠️ {language === 'de' ? 'Strombedarf nur teilweise gedeckt' : 'Power demand only partially covered'}
+                          </div>
+                        )}
+                        {/* Nutzbare Restwärme Slider */}
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <label htmlFor="usable-residual-heat" className="block text-sm font-medium text-yellow-300 mb-1">
+                              {language === 'de' ? 'Nutzbare Restwärme' : 'Usable Residual Heat'}: <span className="font-bold text-white">{inputs.usableResidualHeat}%</span>
+                            </label>
+                            <button onClick={() => toggleInfo('usableResidualHeat')} className="text-yellow-400 hover:text-yellow-300 ml-2">
+                              <Info className="w-5 h-5" />
+                            </button>
+                          </div>
+                          <input id="usable-residual-heat" name="usableResidualHeat" type="range" min="0" max="100" step="1" value={inputs.usableResidualHeat} onChange={(e) => handleInputChange('usableResidualHeat', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
+                          {expandedInfo['usableResidualHeat'] && (
+                            <div className="mt-2 text-xs text-gray-300 bg-yellow-900/30 p-3 rounded border border-yellow-500/20 space-y-2">
+                              <p className="font-bold text-yellow-300">{language === 'de' ? 'Wärmenutzung bei verschiedenen KWK-Technologien' : 'Heat utilization for different CHP technologies'}</p>
+                              <div className="overflow-x-auto">
+                                <table className="min-w-full text-xs border-collapse">
+                                  <thead>
+                                    <tr className="bg-yellow-900/40">
+                                      <th className="border border-yellow-700/50 px-2 py-1 text-left">{language === 'de' ? 'Technologie' : 'Technology'}</th>
+                                      <th className="border border-yellow-700/50 px-2 py-1">{language === 'de' ? 'Bezugsbasis' : 'Reference'}</th>
+                                      <th className="border border-yellow-700/50 px-2 py-1">{language === 'de' ? 'El. Wirkungsgrad' : 'El. Efficiency'}</th>
+                                      <th className="border border-yellow-700/50 px-2 py-1">{language === 'de' ? 'Therm. Nutzwärme' : 'Therm. Useful Heat'}</th>
+                                      <th className="border border-yellow-700/50 px-2 py-1">{language === 'de' ? 'Abwärme' : 'Waste Heat'}</th>
+                                      <th className="border border-yellow-700/50 px-2 py-1">{language === 'de' ? 'Gesamtwirkungsgrad' : 'Total Efficiency'}</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {[
+                                      ['Gasmotor-BHKW (1,6 MW el)', 'Feuerungsleistung (Gas)', '38–42 %', '40–45 %', '13–22 %', '80–87 %'],
+                                      ['Zündstrahlmotor-BHKW', 'Feuerungsleistung (Gas)', '35–40 %', '42–48 %', '12–23 %', '80–85 %'],
+                                      ['Gasmikroturbine', 'Feuerungsleistung (Gas)', '25–33 %', '45–55 %', '12–30 %', '78–85 %'],
+                                      ['ORC – Heißgas (≥300°C), Luftkühlung', 'Therm. Eingangsleistung', '18–24 %', '0–10 %', '66–82 %', '20–32 %'],
+                                      ['ORC – Heißgas (≥300°C), Wärmeauskopplung', 'Therm. Eingangsleistung', '15–20 %', '45–60 %', '20–40 %', '65–78 %'],
+                                      ['ORC – Warmwasser (95°C), Luftkühlung', 'Therm. Eingangsleistung', '8–12 %', '0–5 %', '83–92 %', '10–15 %'],
+                                      ['ORC – Warmwasser (95°C), Wärmeauskopplung', 'Therm. Eingangsleistung', '6–10 %', '65–75 %', '15–28 %', '75–83 %'],
+                                      ['Dampfturbine (Sattdampf, <10 bar)', 'Therm. Eingangsleistung (Dampf)', '10–18 %', '65–75 %', '10–20 %', '82–90 %'],
+                                      ['Dampfturbine (Heißdampf, 20–50 bar)', 'Therm. Eingangsleistung (Dampf)', '22–32 %', '50–62 %', '10–20 %', '78–88 %'],
+                                      ['Dampfturbine (Kondensationsbetrieb)', 'Therm. Eingangsleistung (Dampf)', '28–38 %', '0–15 %', '55–72 %', '30–45 %'],
+                                    ].map((row, i) => (
+                                      <tr key={i} className={i % 2 === 0 ? 'bg-gray-800/40' : 'bg-gray-800/20'}>
+                                        {row.map((cell, j) => (
+                                          <td key={j} className="border border-yellow-700/30 px-2 py-1">{cell}</td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-2 bg-yellow-900/20 rounded border border-yellow-500/30 text-sm">
+                          <span className="text-gray-400">{language === 'de' ? 'Restwärme' : 'Residual Heat'}: </span>
+                          <span className="font-bold text-orange-300">{residualHeatMW.toFixed(2)} MW</span>
+                          <span className="text-gray-500 mx-2">→</span>
+                          <span className="text-gray-400">{language === 'de' ? 'Nutzbar' : 'Usable'}: </span>
+                          <span className="font-bold text-orange-300">{usableResidualHeatMW.toFixed(2)} MW</span>
+                        </div>
+                      </div>
+                      {/* Arrow: Stromgenerierung → Wärmetauscher */}
+                      <div className="flex flex-col items-center py-1">
+                        <div className="flex flex-col items-center">
+                          <div className="w-5 h-6 bg-orange-400"></div>
+                          <div className="w-0 h-0 border-l-[14px] border-r-[14px] border-t-[10px] border-l-transparent border-r-transparent border-t-orange-400"></div>
+                          <span className="text-xs text-orange-300">{language === 'de' ? 'Restwärme' : 'Residual Heat'}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── HEAT EXCHANGER BOX ── */}
+                  <div className="w-full bg-gradient-to-br from-orange-800/30 to-red-900/20 p-4 rounded-lg border-2 border-orange-500/40 space-y-3">
+                    <h3 className="text-lg font-bold text-orange-300 flex items-center gap-2">
+                      🔄 {language === 'de' ? 'Wärmetauscher' : 'Heat Exchanger'}
+                    </h3>
+                    {/* Heat Exchanger Efficiency Slider */}
+                    <div>
+                      <label htmlFor="thermal-efficiency" className="block text-sm font-medium text-orange-200 mb-1">
+                        {t.thermalEfficiency}: <span className="font-bold text-white">{inputs.thermalEfficiency}%</span>
+                      </label>
+                      <input id="thermal-efficiency" name="thermalEfficiency" type="range" min="0" max="100" step="1" value={inputs.thermalEfficiency} onChange={(e) => handleInputChange('thermalEfficiency', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-400" />
+                    </div>
+                    <div className="p-2 bg-orange-900/20 rounded border border-orange-500/30 text-sm">
+                      <div>
+                        <span className="text-gray-400">{language === 'de' ? 'Thermische Nennleistung' : 'Thermal Rated Power'}: </span>
+                        <span className="font-bold text-white">
+                          {thermalRatedPowerMW.toFixed(2)} MW
+                        </span>
+                        {products.electricity && (
+                          <span className="text-xs text-gray-500 ml-2">({language === 'de' ? 'bezogen auf Restwärme' : 'based on residual heat'})</span>
+                        )}
+                      </div>
+                    </div>
+                    {products.heat ? (
+                      <>
+                        <div>
+                          <label htmlFor="heat-yield" className="block text-sm font-medium text-orange-200 mb-1">
+                            {t.heatSoldPercentage}: <span className="font-bold text-white">{inputs.heatYield}%</span>
+                          </label>
+                          <input id="heat-yield" name="heatYield" type="range" min="0" max="100" step="1" value={inputs.heatYield} onChange={(e) => handleInputChange('heatYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-400" />
+                        </div>
+                        <div>
+                          <label htmlFor="heat-price" className="block text-sm font-medium text-orange-200 mb-1">
+                            {t.heatSalePrice}: <span className="font-bold text-white">{inputs.heatPrice.toFixed(3)} €/kWh</span>
+                          </label>
+                          <input id="heat-price" name="heatPrice" type="range" min="0.01" max="0.5" step="0.01" value={inputs.heatPrice} onChange={(e) => handleInputChange('heatPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-400" />
+                        </div>
+                        <div className="p-2 bg-orange-900/20 rounded border border-orange-500/30 text-sm space-y-1">
+                          <div>
+                            <span className="text-gray-400">{language === 'de' ? 'Verkaufte Wärme' : 'Heat Sold'}: </span>
+                            <span className="font-bold text-white">
+                              {formatNumber(Math.round(thermalRatedPowerMW * (inputs.heatYield / 100) * inputs.operatingHours))} MWh/{language === 'de' ? 'a' : 'yr'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">{language === 'de' ? 'Wärmeverkauf' : 'Heat Sales'}: </span>
+                            <span className="font-bold text-white">
+                              {formatNumber(thermalRatedPowerKW * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice)} €/{language === 'de' ? 'a' : 'yr'}
+                            </span>
+                          </div>
                         </div>
                       </>
-                    )}
-                    {((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours) >= (inputs.electricalPower * inputs.operatingHours) ? (
-                      <div className="p-2 bg-green-900/30 border border-green-500/30 rounded-lg mt-3">
-                        <p className="text-sm text-green-300 font-semibold">
-                          ✓ {language === 'de' ? 'Der Strombedarf der Anlage kann im Betrieb vollständig gedeckt werden' : 'The electricity demand of the plant can be fully covered during operation'}
-                        </p>
-                      </div>
                     ) : (
-                      <div className="p-2 bg-orange-900/30 border border-orange-500/30 rounded-lg mt-3">
-                        <p className="text-sm text-orange-300 font-semibold">
-                          ⚠️ {language === 'de' ? 'Der Strombedarf der Anlage kann im Betrieb zum Teil gedeckt werden' : 'The electricity demand of the plant can only be partially covered during operation'}
-                        </p>
-                      </div>
+                      <p className="text-xs text-gray-500 italic">
+                        {language === 'de' ? 'Wärmeverkauf nicht aktiviert – Wärme wird nicht genutzt.' : 'Heat sales not activated – heat is not utilized.'}
+                      </p>
                     )}
                   </div>
-                  <div className="p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
-                    <p className="text-sm text-yellow-100">
-                      {language === 'de' 
-                        ? '⚠️ Hinweis: Bei Stromerzeugung steht weniger Wärme zur Verfügung. Achten Sie darauf, dass die Wärme- und Stromparameter aufeinander abgestimmt sind, um realistische Szenarien zu modellieren.'
-                        : '⚠️ Note: When producing electricity, less heat is available. Make sure heat and electricity parameters are coordinated to model realistic scenarios.'
-                      }
-                    </p>
-                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Bio-oil Parameters wenn aktiviert */}
-            {products.bioOil && (
-              <div className="bg-gradient-to-br from-purple-900/30 to-gray-800 p-5 rounded-lg border border-purple-500/30">
-                <h2 className="text-xl font-semibold text-purple-400 mb-4 flex items-center gap-2">
-                  <Droplets className="w-5 h-5" />
-                  {t.bioOilParams}
-                </h2>
-                <div className="space-y-3">
-                  <div>
-                    <label htmlFor="bio-oil-yield" className="block text-sm font-medium text-purple-300 mb-2">
-                      {t.bioOilYield}: <span className="font-bold text-white">{inputs.bioOilYield}%</span>
-                    </label>
-                    <input id="bio-oil-yield" name="bioOilYield" type="range" min="10" max="50" step="1" value={inputs.bioOilYield} onChange={(e) => handleInputChange('bioOilYield', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+              {/* ── ENERGY BALANCE SUMMARY ── */}
+              <div className="w-full mt-4 p-4 bg-gray-800/80 rounded-lg border border-gray-600/40">
+                <h4 className="text-lg font-bold text-gray-300 mb-3">
+                  {language === 'de' ? '⚡ Energiebilanz (vereinfacht)' : '⚡ Energy Balance (simplified)'}
+                </h4>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 bg-blue-900/20 rounded border border-blue-500/20 text-center">
+                    <div className="text-sm text-gray-400">{language === 'de' ? 'Eingang' : 'Input'}</div>
+                    <div className="text-lg font-bold text-blue-300">{formatNumber(inputs.plantCapacity)} kg/h</div>
+                    <div className="text-xl font-bold text-blue-300">{(inputs.plantCapacity * inputs.fuelHeatValue / 1000).toFixed(2)} MW</div>
                   </div>
-                  <div>
-                    <label htmlFor="bio-oil-price" className="block text-sm font-medium text-purple-300 mb-2">
-                      {t.bioOilPrice}: <span className="font-bold text-white">{inputs.bioOilPrice} €/t</span>
-                    </label>
-                    <input id="bio-oil-price" name="bioOilPrice" type="range" min="100" max="1000" step="10" value={inputs.bioOilPrice} onChange={(e) => handleInputChange('bioOilPrice', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+                  <div className="p-3 bg-green-900/20 rounded border border-green-500/20 text-center">
+                    <div className="text-sm text-gray-400">{language === 'de' ? 'Biokohle' : 'Biochar'}</div>
+                    <div className="text-lg font-bold text-green-300">{formatNumber(inputs.plantCapacity * inputs.biocharYield / 100)} kg/h</div>
+                    <div className="text-xl font-bold text-green-300">{((inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue) / (1000 * 3.6)).toFixed(2)} MW</div>
                   </div>
-                  <div>
-                    <label htmlFor="bio-oil-investment" className="block text-sm font-medium text-purple-300 mb-2">
-                      {t.additionalInvestment} (Bio-Öl): <span className="font-bold text-white">{formatNumber(inputs.bioOilInvestment)} €</span>
-                    </label>
-                    <input id="bio-oil-investment" name="bioOilInvestment" type="range" min="20000" max="2000000" step="5000" value={inputs.bioOilInvestment} onChange={(e) => handleInputChange('bioOilInvestment', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
-                  </div>
-                  <div className="p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-                    <div className="text-sm">
-                      <span className="text-gray-400">{language === 'de' ? 'Bio-Öl Produktion' : 'Bio-Oil Production'}: </span>
-                      <span className="font-bold text-white">
-                        {formatNumber((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100), 1)} t/{language === 'de' ? 'Jahr' : 'year'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-                    <div className="text-sm">
-                      <span className="text-gray-400">{language === 'de' ? 'Umsatz Bio-Öl' : 'Bio-Oil Sales'}: </span>
-                      <span className="font-bold text-white">
-                        {formatNumber(((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100)) * inputs.bioOilPrice)} €/{language === 'de' ? 'Jahr' : 'year'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-                    <p className="text-sm text-purple-100">
-                      {language === 'de' 
-                        ? '⚠️ Hinweis: Bei Bio-Öl-Produktion kann weniger bis kein Strom produziert werden und nur limitiert Restwärme genutzt werden. Passen Sie die Lohnkosten manuell an, um die zusätzliche Komplexität der Bio-Öl-Produktion abzubilden. Die Wartungskosten werden automatisch angepasst. Achten Sie darauf, dass Ihre Parameter diese Konkurrenzsituation um Energie realistisch abbilden.'
-                        : '⚠️ Note: When producing bio-oil, little to no electricity can be generated and only limited residual heat can be utilized. Please adjust labor costs manually to reflect the additional complexity of bio-oil production. Maintenance costs are adjusted automatically. Make sure your parameters realistically reflect this competition for energy.'
-                      }
-                    </p>
+                  <div className="p-3 bg-red-900/20 rounded border border-red-500/20 text-center">
+                    <div className="text-sm text-gray-400">{language === 'de' ? 'Pyrolysegas' : 'Pyrolysis Gas'}</div>
+                    <div className="text-lg font-bold text-red-300">{formatNumber(inputs.plantCapacity * (1 - inputs.biocharYield / 100))} kg/h</div>
+                    <div className="text-xl font-bold text-red-300">{((inputs.plantCapacity * inputs.fuelHeatValue / 1000) - (inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue / (1000 * 3.6))).toFixed(2)} MW</div>
                   </div>
                 </div>
               </div>
-            )}
+
+              {/* ── SANKEY DIAGRAM ── */}
+              {(() => {
+                // All energy values in MW
+                const totalInputMW = inputs.plantCapacity * inputs.fuelHeatValue / 1000;
+                const biocharMW = (inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue) / (1000 * 3.6);
+                const pyGasMW = pyrolysisGasEnergyMW;
+                const oilMW = oilEnergyMW;
+                const resGasMW = residualGasEnergyMW;
+                const autothermMW = resGasMW * (inputs.autothermalShare / 100);
+                const combustionOutMW = waermestromMW;
+                const elecMW = products.electricity ? combustionOutMW * (inputs.electricityYield / 100) : 0;
+                const heatAfterElecMW = products.electricity ? combustionOutMW * (1 - inputs.electricityYield / 100) : combustionOutMW;
+                const usableHeatMW = products.heat
+                  ? (products.electricity ? heatAfterElecMW * (inputs.usableResidualHeat / 100) : heatAfterElecMW) * (inputs.thermalEfficiency / 100)
+                  : 0;
+                const lossHeatMW = heatAfterElecMW - usableHeatMW;
+
+                const pct = (v: number) => totalInputMW > 0 ? ((v / totalInputMW) * 100).toFixed(1) : '0.0';
+                const fmt = (v: number) => v.toFixed(2);
+
+                // SVG layout constants
+                const W = 1000;
+                const H = 520;
+                const minBand = 3;
+
+                // Horizontal positions for each column (x centers)
+                const colX = [60, 250, 440, 630, 820];
+
+                // Scaling: total input height
+                const maxBandH = 300;
+                const scale = totalInputMW > 0 ? maxBandH / totalInputMW : 0;
+                const bh = (mw: number) => Math.max(mw * scale, mw > 0 ? minBand : 0);
+
+                // Column 0: Biomass Input
+                const inputH = bh(totalInputMW);
+                const inputY = (H - inputH) / 2;
+
+                // Column 1: Biochar + Pyrolysis Gas
+                const biocharH = bh(biocharMW);
+                const pyGasH = bh(pyGasMW);
+                const gap1 = 20;
+                const col1TotalH = biocharH + pyGasH + gap1;
+                const col1StartY = (H - col1TotalH) / 2;
+                const biocharY = col1StartY;
+                const pyGasY = biocharY + biocharH + gap1;
+
+                // Column 2: (if oil active) Oil + Residual Gas, else just Gas pass-through
+                let oilY = 0, oilH = 0, resGasY = 0, resGasH = 0;
+                if (products.bioOil) {
+                  oilH = bh(oilMW);
+                  resGasH = bh(resGasMW);
+                  const gap2 = 16;
+                  const col2TotalH = oilH + resGasH + gap2;
+                  const col2StartY = pyGasY + pyGasH / 2 - col2TotalH / 2;
+                  oilY = col2StartY;
+                  resGasY = oilY + oilH + gap2;
+                } else {
+                  resGasH = pyGasH;
+                  resGasY = pyGasY;
+                }
+
+                // Column 3: Autothermie + Combustion output (Wärmestrom)
+                const autothermH = bh(autothermMW);
+                const combOutH = bh(combustionOutMW);
+                const gap3 = 16;
+                const col3TotalH = autothermH + combOutH + gap3;
+                const col3StartY = resGasY + resGasH / 2 - col3TotalH / 2;
+                const autothermY = col3StartY;
+                const combOutY = autothermY + autothermH + gap3;
+
+                // Column 4: Electricity + Heat (usable + loss)
+                let elecY = 0, elecH = 0, usableHeatY2 = 0, usableHeatH = 0, lossHeatY = 0, lossHeatH = 0;
+                if (products.electricity) {
+                  elecH = bh(elecMW);
+                  usableHeatH = bh(usableHeatMW);
+                  lossHeatH = bh(lossHeatMW);
+                  const gap4 = 12;
+                  const col4TotalH = elecH + usableHeatH + lossHeatH + gap4 * 2;
+                  const col4StartY = combOutY + combOutH / 2 - col4TotalH / 2;
+                  elecY = col4StartY;
+                  usableHeatY2 = elecY + elecH + gap4;
+                  lossHeatY = usableHeatY2 + usableHeatH + gap4;
+                } else {
+                  usableHeatH = bh(usableHeatMW);
+                  lossHeatH = bh(lossHeatMW);
+                  const gap4 = 12;
+                  const col4TotalH = usableHeatH + lossHeatH + gap4;
+                  const col4StartY = combOutY + combOutH / 2 - col4TotalH / 2;
+                  usableHeatY2 = col4StartY;
+                  lossHeatY = usableHeatY2 + usableHeatH + gap4;
+                }
+
+                // Helper: curved band path between two vertical bars
+                const bandPath = (x1: number, y1: number, h1: number, x2: number, y2: number, h2: number) => {
+                  const cx = (x1 + x2) / 2;
+                  return `M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2} L${x2},${y2 + h2} C${cx},${y2 + h2} ${cx},${y1 + h1} ${x1},${y1 + h1} Z`;
+                };
+
+                // Node rect helper
+                const nodeW = 18;
+
+                return (
+                  <div className="w-full mt-4 p-4 bg-gray-800/80 rounded-lg border border-gray-600/40">
+                    <h4 className="text-lg font-bold text-gray-300 mb-3">
+                      {language === 'de' ? '🔀 Sankey-Diagramm – Energiefluss' : '🔀 Sankey Diagram – Energy Flow'}
+                    </h4>
+                    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 480 }}>
+                      <defs>
+                        <linearGradient id="sg-input-biochar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6"/><stop offset="100%" stopColor="#22c55e" stopOpacity="0.6"/></linearGradient>
+                        <linearGradient id="sg-input-gas" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6"/><stop offset="100%" stopColor="#ef4444" stopOpacity="0.6"/></linearGradient>
+                        <linearGradient id="sg-gas-oil" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#ef4444" stopOpacity="0.5"/><stop offset="100%" stopColor="#a855f7" stopOpacity="0.6"/></linearGradient>
+                        <linearGradient id="sg-gas-resgas" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#ef4444" stopOpacity="0.5"/><stop offset="100%" stopColor="#f87171" stopOpacity="0.5"/></linearGradient>
+                        <linearGradient id="sg-resgas-autotherm" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#f87171" stopOpacity="0.5"/><stop offset="100%" stopColor="#eab308" stopOpacity="0.6"/></linearGradient>
+                        <linearGradient id="sg-resgas-combout" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#f87171" stopOpacity="0.5"/><stop offset="100%" stopColor="#f97316" stopOpacity="0.6"/></linearGradient>
+                        <linearGradient id="sg-comb-elec" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#f97316" stopOpacity="0.5"/><stop offset="100%" stopColor="#facc15" stopOpacity="0.6"/></linearGradient>
+                        <linearGradient id="sg-comb-heat" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#f97316" stopOpacity="0.5"/><stop offset="100%" stopColor="#06b6d4" stopOpacity="0.6"/></linearGradient>
+                        <linearGradient id="sg-comb-loss" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#f97316" stopOpacity="0.4"/><stop offset="100%" stopColor="#6b7280" stopOpacity="0.4"/></linearGradient>
+                        <linearGradient id="sg-oil-out" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#a855f7" stopOpacity="0.55"/><stop offset="100%" stopColor="#a855f7" stopOpacity="0.35"/></linearGradient>
+                      </defs>
+
+                      {/* ── BANDS ── */}
+                      {/* Input → Biochar */}
+                      <path d={bandPath(colX[0] + nodeW, inputY, bh(biocharMW), colX[1], biocharY, biocharH)} fill="url(#sg-input-biochar)" />
+                      {/* Input → Pyrolysis Gas */}
+                      <path d={bandPath(colX[0] + nodeW, inputY + bh(biocharMW), bh(pyGasMW), colX[1], pyGasY, pyGasH)} fill="url(#sg-input-gas)" />
+
+                      {/* Pyrolysis Gas → Oil (if active) */}
+                      {products.bioOil && oilMW > 0 && (
+                        <path d={bandPath(colX[1] + nodeW, pyGasY, bh(oilMW), colX[2], oilY, oilH)} fill="url(#sg-gas-oil)" />
+                      )}
+                      {/* Pyrolysis Gas → Residual Gas / pass-through */}
+                      <path d={bandPath(colX[1] + nodeW, pyGasY + (products.bioOil ? bh(oilMW) : 0), products.bioOil ? bh(resGasMW) : pyGasH, products.bioOil ? colX[2] : colX[2], resGasY, resGasH)} fill="url(#sg-gas-resgas)" />
+
+                      {/* Residual Gas → Autothermie */}
+                      {autothermMW > 0 && (
+                        <path d={bandPath(colX[2] + nodeW, resGasY, autothermH, colX[3], autothermY, autothermH)} fill="url(#sg-resgas-autotherm)" />
+                      )}
+                      {/* Residual Gas → Combustion output */}
+                      <path d={bandPath(colX[2] + nodeW, resGasY + autothermH, bh(combustionOutMW), colX[3], combOutY, combOutH)} fill="url(#sg-resgas-combout)" />
+
+                      {/* Combustion output → Electricity */}
+                      {products.electricity && elecMW > 0 && (
+                        <path d={bandPath(colX[3] + nodeW, combOutY, elecH, colX[4], elecY, elecH)} fill="url(#sg-comb-elec)" />
+                      )}
+                      {/* Combustion output → Usable Heat */}
+                      {usableHeatMW > 0 && (
+                        <path d={bandPath(colX[3] + nodeW, combOutY + (products.electricity ? elecH : 0), usableHeatH, colX[4], usableHeatY2, usableHeatH)} fill="url(#sg-comb-heat)" />
+                      )}
+                      {/* Combustion output → Loss Heat */}
+                      {lossHeatMW > 0 && (
+                        <path d={bandPath(colX[3] + nodeW, combOutY + (products.electricity ? elecH : 0) + usableHeatH, lossHeatH, colX[4], lossHeatY, lossHeatH)} fill="url(#sg-comb-loss)" />
+                      )}
+
+                      {/* Oil → Nutzung (if oil active, band from condensation to utilization column) */}
+                      {products.bioOil && oilMW > 0 && (
+                        <path d={bandPath(colX[2] + nodeW, oilY, oilH, colX[4], oilY, oilH)} fill="url(#sg-oil-out)" />
+                      )}
+
+                      {/* ── NODE BARS ── */}
+                      {/* Input */}
+                      <rect x={colX[0]} y={inputY} width={nodeW} height={inputH} rx={4} fill="#3b82f6" />
+                      {/* Biochar */}
+                      <rect x={colX[1]} y={biocharY} width={nodeW} height={biocharH} rx={4} fill="#22c55e" />
+                      {/* Pyrolysis Gas */}
+                      <rect x={colX[1]} y={pyGasY} width={nodeW} height={pyGasH} rx={4} fill="#ef4444" />
+                      {/* Oil Condensation (if active) */}
+                      {products.bioOil && oilMW > 0 && (
+                        <rect x={colX[2]} y={oilY} width={nodeW} height={oilH} rx={4} fill="#a855f7" />
+                      )}
+                      {/* Residual Gas / Pass-through bar at column 2 (always visible) */}
+                      <rect x={colX[2]} y={resGasY} width={nodeW} height={resGasH} rx={4} fill="#f87171" />
+                      {/* Autothermie */}
+                      {autothermMW > 0 && (
+                        <rect x={colX[3]} y={autothermY} width={nodeW} height={autothermH} rx={4} fill="#eab308" />
+                      )}
+                      {/* Combustion output (Wärmestrom) */}
+                      <rect x={colX[3]} y={combOutY} width={nodeW} height={combOutH} rx={4} fill="#f97316" />
+                      {/* Electricity */}
+                      {products.electricity && elecMW > 0 && (
+                        <rect x={colX[4]} y={elecY} width={nodeW} height={elecH} rx={4} fill="#facc15" />
+                      )}
+                      {/* Usable Heat */}
+                      {usableHeatMW > 0 && (
+                        <rect x={colX[4]} y={usableHeatY2} width={nodeW} height={usableHeatH} rx={4} fill="#06b6d4" />
+                      )}
+                      {/* Loss Heat */}
+                      {lossHeatMW > 0 && (
+                        <rect x={colX[4]} y={lossHeatY} width={nodeW} height={lossHeatH} rx={4} fill="#6b7280" />
+                      )}
+                      {/* Oil output at Nutzung column (if oil active) */}
+                      {products.bioOil && oilMW > 0 && (
+                        <rect x={colX[4]} y={oilY} width={nodeW} height={oilH} rx={4} fill="#a855f7" />
+                      )}
+
+                      {/* ── LABELS ── */}
+                      <style>{`text.sk{font-family:system-ui,sans-serif;} text.sk-title{font-size:12px;font-weight:700;fill:#e5e7eb;} text.sk-val{font-size:11px;font-weight:600;} text.sk-pct{font-size:10px;fill:#9ca3af;}`}</style>
+
+                      {/* Input label */}
+                      <text x={colX[0] + nodeW / 2} y={inputY - 18} textAnchor="middle" className="sk sk-title">{language === 'de' ? 'Biomasse' : 'Biomass'}</text>
+                      <text x={colX[0] + nodeW / 2} y={inputY - 5} textAnchor="middle" className="sk sk-val" fill="#93c5fd">{fmt(totalInputMW)} MW</text>
+                      <text x={colX[0] + nodeW / 2} y={inputY + inputH + 14} textAnchor="middle" className="sk sk-pct">100%</text>
+
+                      {/* Biochar label */}
+                      <text x={colX[1] + nodeW / 2} y={biocharY - 18} textAnchor="middle" className="sk sk-title">{language === 'de' ? 'Biokohle' : 'Biochar'}</text>
+                      <text x={colX[1] + nodeW / 2} y={biocharY - 5} textAnchor="middle" className="sk sk-val" fill="#86efac">{fmt(biocharMW)} MW</text>
+                      <text x={colX[1] + nodeW / 2} y={biocharY + biocharH + 14} textAnchor="middle" className="sk sk-pct">{pct(biocharMW)}%</text>
+
+                      {/* Pyrolysis Gas label */}
+                      <text x={colX[1] + nodeW / 2} y={pyGasY + pyGasH + 14} textAnchor="middle" className="sk sk-title">{language === 'de' ? 'Pyrolysegas' : 'Pyr. Gas'}</text>
+                      <text x={colX[1] + nodeW / 2} y={pyGasY + pyGasH + 28} textAnchor="middle" className="sk sk-val" fill="#fca5a5">{fmt(pyGasMW)} MW</text>
+                      <text x={colX[1] + nodeW / 2} y={pyGasY + pyGasH + 42} textAnchor="middle" className="sk sk-pct">{pct(pyGasMW)}%</text>
+
+                      {/* Oil label (if active) */}
+                      {products.bioOil && oilMW > 0 && (
+                        <>
+                          <text x={colX[2] + nodeW / 2} y={oilY - 18} textAnchor="middle" className="sk sk-title">{language === 'de' ? 'Bio-Öl' : 'Bio-Oil'}</text>
+                          <text x={colX[2] + nodeW / 2} y={oilY - 5} textAnchor="middle" className="sk sk-val" fill="#c084fc">{fmt(oilMW)} MW</text>
+                          <text x={colX[2] + nodeW / 2} y={oilY + oilH + 14} textAnchor="middle" className="sk sk-pct">{pct(oilMW)}%</text>
+                        </>
+                      )}
+
+                      {/* Residual Gas / Pass-through label at column 2 */}
+                      {products.bioOil ? (
+                        <>
+                          <text x={colX[2] + nodeW / 2} y={resGasY + resGasH + 14} textAnchor="middle" className="sk sk-title">{language === 'de' ? 'Restgas' : 'Res. Gas'}</text>
+                          <text x={colX[2] + nodeW / 2} y={resGasY + resGasH + 28} textAnchor="middle" className="sk sk-val" fill="#fca5a5">{fmt(resGasMW)} MW</text>
+                          <text x={colX[2] + nodeW / 2} y={resGasY + resGasH + 42} textAnchor="middle" className="sk sk-pct">{pct(resGasMW)}%</text>
+                        </>
+                      ) : (
+                        <>
+                          <text x={colX[2] + nodeW / 2} y={resGasY - 5} textAnchor="middle" className="sk sk-val" fill="#fca5a5">{fmt(pyGasMW)} MW</text>
+                        </>
+                      )}
+
+                      {/* Autothermie label */}
+                      {autothermMW > 0 && (
+                        <>
+                          <text x={colX[3] + nodeW / 2} y={autothermY - 18} textAnchor="middle" className="sk sk-title" fill="#facc15">{language === 'de' ? 'Autothermie' : 'Autothermal'}</text>
+                          <text x={colX[3] + nodeW / 2} y={autothermY - 5} textAnchor="middle" className="sk sk-val" fill="#fde047">{fmt(autothermMW)} MW</text>
+                          <text x={colX[3] + nodeW / 2} y={autothermY + autothermH + 14} textAnchor="middle" className="sk sk-pct">{pct(autothermMW)}%</text>
+                        </>
+                      )}
+
+                      {/* Wärmestrom label */}
+                      <text x={colX[3] + nodeW / 2} y={combOutY + combOutH + 14} textAnchor="middle" className="sk sk-title">{language === 'de' ? 'Wärmestrom' : 'Heat Flow'}</text>
+                      <text x={colX[3] + nodeW / 2} y={combOutY + combOutH + 28} textAnchor="middle" className="sk sk-val" fill="#fdba74">{fmt(combustionOutMW)} MW</text>
+                      <text x={colX[3] + nodeW / 2} y={combOutY + combOutH + 42} textAnchor="middle" className="sk sk-pct">{pct(combustionOutMW)}%</text>
+
+                      {/* Electricity label */}
+                      {products.electricity && elecMW > 0 && (
+                        <>
+                          <text x={colX[4] + nodeW + 5} y={elecY + elecH / 2 - 8} textAnchor="start" className="sk sk-title" fill="#fde047">{language === 'de' ? 'Strom' : 'Electricity'}</text>
+                          <text x={colX[4] + nodeW + 5} y={elecY + elecH / 2 + 6} textAnchor="start" className="sk sk-val" fill="#facc15">{fmt(elecMW)} MW ({pct(elecMW)}%)</text>
+                        </>
+                      )}
+
+                      {/* Usable Heat label */}
+                      {usableHeatMW > 0 && (
+                        <>
+                          <text x={colX[4] + nodeW + 5} y={usableHeatY2 + usableHeatH / 2 - 8} textAnchor="start" className="sk sk-title" fill="#67e8f9">{language === 'de' ? 'Nutzwärme' : 'Usable Heat'}</text>
+                          <text x={colX[4] + nodeW + 5} y={usableHeatY2 + usableHeatH / 2 + 6} textAnchor="start" className="sk sk-val" fill="#06b6d4">{fmt(usableHeatMW)} MW ({pct(usableHeatMW)}%)</text>
+                        </>
+                      )}
+
+                      {/* Loss Heat label */}
+                      {lossHeatMW > 0 && (
+                        <>
+                          <text x={colX[4] + nodeW + 5} y={lossHeatY + lossHeatH / 2 - 8} textAnchor="start" className="sk sk-title" fill="#9ca3af">{language === 'de' ? 'Verluste' : 'Losses'}</text>
+                          <text x={colX[4] + nodeW + 5} y={lossHeatY + lossHeatH / 2 + 6} textAnchor="start" className="sk sk-val" fill="#6b7280">{fmt(lossHeatMW)} MW ({pct(lossHeatMW)}%)</text>
+                        </>
+                      )}
+
+                      {/* Oil output label at Nutzung column */}
+                      {products.bioOil && oilMW > 0 && (
+                        <>
+                          <text x={colX[4] + nodeW + 5} y={oilY + oilH / 2 - 8} textAnchor="start" className="sk sk-title" fill="#c084fc">{language === 'de' ? 'Bio-Öl' : 'Bio-Oil'}</text>
+                          <text x={colX[4] + nodeW + 5} y={oilY + oilH / 2 + 6} textAnchor="start" className="sk sk-val" fill="#a855f7">{fmt(oilMW)} MW ({pct(oilMW)}%)</text>
+                        </>
+                      )}
+
+                      {/* Column headers */}
+                      <text x={colX[0] + nodeW / 2} y={18} textAnchor="middle" className="sk" style={{ fontSize: 11, fill: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>{language === 'de' ? 'EINGANG' : 'INPUT'}</text>
+                      <text x={colX[1] + nodeW / 2} y={18} textAnchor="middle" className="sk" style={{ fontSize: 11, fill: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>{language === 'de' ? 'PYROLYSE' : 'PYROLYSIS'}</text>
+                      <text x={colX[2] + nodeW / 2} y={18} textAnchor="middle" className="sk" style={{ fontSize: 11, fill: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>{products.bioOil ? (language === 'de' ? 'KONDENSATION' : 'CONDENSATION') : (language === 'de' ? 'OHNE KONDENS.' : 'NO CONDENS.')}</text>
+                      <text x={colX[3] + nodeW / 2} y={18} textAnchor="middle" className="sk" style={{ fontSize: 11, fill: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>{language === 'de' ? 'VERBRENNUNG' : 'COMBUSTION'}</text>
+                      <text x={colX[4] + nodeW / 2} y={18} textAnchor="middle" className="sk" style={{ fontSize: 11, fill: '#6b7280', fontWeight: 600, letterSpacing: '0.05em' }}>{language === 'de' ? 'NUTZUNG' : 'UTILIZATION'}</text>
+                    </svg>
+                  </div>
+                );
+              })()}
+
+            </div>
           </div>
         </div>
 
@@ -1981,13 +2592,18 @@ const PyrolysisCalculator = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
               {(() => {
-                const heatRevenue = products.heat ? ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100)) * 1000 * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice / 1000 : 0;
-                const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours);
+                const heatRevenue = products.heat ? thermalRatedPowerKW * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice / 1000 : 0;
+                const elecProd = elecProductionKWh;
                 const elecConsumption = inputs.electricalPower * inputs.operatingHours;
                 const electricityRevenue = products.electricity ? Math.max(0, (elecProd - elecConsumption) * inputs.electricityPrice / 1000) : 0;
                 const bioOilRevenue = products.bioOil ? (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100) * inputs.bioOilPrice / 1000 : 0;
                 const biocharRevenue = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.biocharPrice) / 1000;
-                const certificateRevenue = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor * inputs.co2RemovalPrice * 0.75) / 1000;
+                const certificateRevenue =
+                  ((inputs.plantCapacity * inputs.operatingHours / 1000)
+                  * (inputs.biocharYield / 100)
+                  * (inputs.biocharCarbonContent / 100)
+                  * inputs.co2RemovalPrice
+                  * (1 - inputs.certificateFeeRate / 100)) / 1000;
                 
                 const baseClass = 'p-4 rounded-lg shadow-lg';
                 const heatClass = heatRevenue === 0 ? 'bg-gradient-to-br from-gray-600 to-gray-700 border border-gray-500' : 'bg-gradient-to-br from-cyan-600 to-cyan-700 border border-cyan-500';
@@ -2025,13 +2641,9 @@ const PyrolysisCalculator = () => {
               {(() => {
                 const annualFeedstockCost = (inputs.plantCapacity * inputs.operatingHours / 1000) * inputs.feedstockCost;
                 const laborCost = inputs.laborCost;
-                const totalInvestment = inputs.initialInvestment + 
-                  (products.heat ? inputs.heatInvestment : 0) + 
-                  (products.electricity ? inputs.electricityInvestment : 0) + 
-                  (products.bioOil ? inputs.bioOilInvestment : 0);
                 const maintenanceCost = inputs.maintenanceCost;
                 const grossElectricityConsumption = inputs.electricalPower * inputs.operatingHours;
-                const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours);
+                const elecProd = elecProductionKWh;
                 const netElectricityConsumption = Math.max(0, grossElectricityConsumption - elecProd);
                 const grossAnnualElectricityCost = grossElectricityConsumption * inputs.electricityConsumptionPrice / 1000;
                 const netAnnualElectricityCost = netElectricityConsumption * inputs.electricityConsumptionPrice / 1000;
@@ -2067,7 +2679,7 @@ const PyrolysisCalculator = () => {
             </h3>
             {(() => {
               const grossElectricityConsumption = inputs.electricalPower * inputs.operatingHours;
-              const elecProd = ((inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency / 100) * (inputs.electricityYield / 100) * inputs.operatingHours);
+              const elecProd = elecProductionKWh;
               const netElectricityConsumption = Math.max(0, grossElectricityConsumption - elecProd);
               const annualElectricityCost = netElectricityConsumption * inputs.electricityConsumptionPrice / 1000;
               
@@ -2164,17 +2776,18 @@ const PyrolysisCalculator = () => {
                       const annualFeedstock = (inputs.plantCapacity * inputs.operatingHours) / 1000;
                       const biocharProduction = annualFeedstock * (inputs.biocharYield / 100);
                       const biocharSales = biocharProduction * inputs.biocharPrice / 1000;
-                      const co2Certificates = biocharProduction * inputs.lcaFactor * inputs.co2RemovalPrice / 1000;
+                      const co2Certificates =
+                        biocharProduction
+                        * (inputs.biocharCarbonContent / 100)
+                        * inputs.co2RemovalPrice
+                        * (1 - inputs.certificateFeeRate / 100) / 1000;
                       let heatSales = 0;
                       if (products.heat) {
-                        const usableThermalPower = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / (1000 * 100);
-                        heatSales = (usableThermalPower * 1000 * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000;
+                        heatSales = (thermalRatedPowerKW * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000;
                       }
                       let electricitySales = 0;
                       if (products.electricity) {
-                        const usableThermalPowerKW = (inputs.plantCapacity * inputs.fuelHeatValue * inputs.thermalEfficiency) / 100;
-                        const electricityProduction = usableThermalPowerKW * (inputs.electricityYield / 100) * inputs.operatingHours;
-                        electricitySales = electricityProduction * inputs.electricityPrice / 1000;
+                        electricitySales = Math.max(0, (elecProductionKWh - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice) / 1000;
                       }
                       let bioOilSales = 0;
                       if (products.bioOil) {
