@@ -2,7 +2,7 @@
 // Kept as plain data (no React) so it can be reused for LinkedIn posts, newsletters or a PDF.
 // DRAFT – to be reviewed by Decarbo Engineering before publishing.
 
-export type Language = 'de' | 'en';
+import { Language } from '../../i18n';
 
 export interface FailureQuestion {
   topic: string;

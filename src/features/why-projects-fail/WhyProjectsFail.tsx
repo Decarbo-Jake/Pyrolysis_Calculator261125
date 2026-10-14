@@ -1,5 +1,6 @@
 import { AlertTriangle, ChevronDown } from 'lucide-react';
-import { whyProjectsFailContent, Language } from './questions';
+import { whyProjectsFailContent } from './questions';
+import { Language } from '../../i18n';
 
 interface WhyProjectsFailProps {
   language: Language;
