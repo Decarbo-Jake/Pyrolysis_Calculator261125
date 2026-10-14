@@ -11,6 +11,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown, ArrowDown, ArrowUp, ArrowRight, ArrowDownRight } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import decarboLogo from './assets/decarbo-logo.png';
+import biocharEuropeLogo from './assets/Biochar Europe Logo Small White@3x.svg';
 
 // Translation object
 const translations = {
@@ -29,7 +30,7 @@ const translations = {
     revenueHeat: "Umsatz Wärme",
     revenueElectricity: "Umsatz Strom",
     revenueBioOil: "Umsatz Bio-Öl",
-    revenueBiochar: "Umsatz Biokohle",
+    revenueBiochar: "Umsatz Biochar",
     revenueCertificates: "Umsatz Zertifikate",
     biochar: "Biochar (Pflanzenkohle)",
     standardProduct: "(Standardprodukt)",
@@ -374,7 +375,7 @@ const PyrolysisCalculator = () => {
     biocharPrice: 300,
     lcaFactor: 2.4,
     co2RemovalPrice: 100,
-    certificateFeeRate: 25,
+    certificateFeeRate: 25,   // % deducted for trading + dMRV fees
     heatYield: 40,
     heatPrice: 0.08,
     electricityYield: 18,
@@ -727,38 +728,44 @@ const PyrolysisCalculator = () => {
       const contentWidth = pageWidth - 2 * margin;
       let yPosition = margin;
       
-      // Header function with logo only (no text, maintains aspect ratio)
-      const addHeader = () => {
-        pdf.setFillColor(17, 24, 39);
-        pdf.rect(0, 0, pageWidth, 50, 'F');
-        
-        // Add logo image - load and convert to data URL with correct aspect ratio
+      // Pre-load logo as data URL synchronously
+      let logoDataUrl: string | null = null;
+      let logoAspectRatio = 1;
+      try {
         const logoImg = new Image();
         logoImg.crossOrigin = 'anonymous';
-        logoImg.onload = () => {
-          try {
+        await new Promise<void>((resolve) => {
+          logoImg.onload = () => {
             const canvas = document.createElement('canvas');
             canvas.width = logoImg.width;
             canvas.height = logoImg.height;
             const ctx = canvas.getContext('2d');
             if (ctx) {
               ctx.drawImage(logoImg, 0, 0);
-              const imgData = canvas.toDataURL('image/png');
-              // Logo dimensions: 40mm height, width calculated to maintain aspect ratio
-              const logoHeight = 40;
-              const logoWidth = (logoImg.width / logoImg.height) * logoHeight;
-              const logoX = (pageWidth - logoWidth) / 2; // Center horizontally
-              const logoY = 5; // Top position
-              pdf.addImage(imgData, 'PNG', logoX, logoY, logoWidth, logoHeight);
+              logoDataUrl = canvas.toDataURL('image/png');
+              logoAspectRatio = logoImg.width / logoImg.height;
             }
-          } catch (err) {
-            console.warn('Logo could not be added to PDF:', err);
-          }
-        };
-        logoImg.onerror = () => {
-          console.warn('Logo could not be loaded');
-        };
-        logoImg.src = decarboLogo;
+            resolve();
+          };
+          logoImg.onerror = () => resolve();
+          logoImg.src = decarboLogo;
+        });
+      } catch (err) {
+        console.warn('Logo pre-load failed:', err);
+      }
+      
+      // Header function with logo (1/3 page width, centered)
+      const addHeader = () => {
+        pdf.setFillColor(17, 24, 39);
+        pdf.rect(0, 0, pageWidth, 50, 'F');
+        
+        if (logoDataUrl) {
+          const logoWidth = pageWidth / 3;
+          const logoHeight = logoWidth / logoAspectRatio;
+          const logoX = (pageWidth - logoWidth) / 2;
+          const logoY = (50 - logoHeight) / 2;
+          pdf.addImage(logoDataUrl, 'PNG', logoX, Math.max(logoY, 2), logoWidth, Math.min(logoHeight, 46));
+        }
         
         pdf.setDrawColor(34, 197, 94);
         pdf.setLineWidth(0.5);
@@ -917,7 +924,7 @@ const PyrolysisCalculator = () => {
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Umsatz Biokohle', margin + 1, yPosition + 3);
+      pdf.text('Umsatz Biochar', margin + 1, yPosition + 3);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
       const biocharRev = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.biocharPrice / 1000;
@@ -952,7 +959,7 @@ const PyrolysisCalculator = () => {
       pdf.text(co2Title, margin + 2, yPosition + 5);
       yPosition += 10;
       
-      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100);
+      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor;
       const totalCO2 = annualCO2 * inputs.projectLifetime;
       
       // Annual CO2 Box (Green)
@@ -1045,7 +1052,7 @@ const PyrolysisCalculator = () => {
       yPosition += 12;
       
       const capacityLabel = language === 'de' ? 'Kapazität' : 'Capacity';
-      const operatingLabel = language === 'de' ? 'Betriebsstunden' : 'Full-Load-Hours';
+      const operatingLabel = language === 'de' ? 'Volllaststunden' : 'Full-Load-Hours';
       const lifetimeLabel = language === 'de' ? 'Projektlaufzeit' : 'Project Lifetime';
       const discountLabel = language === 'de' ? 'Diskontrate' : 'Discount Rate';
       const efficiencyLabel = language === 'de' ? 'Wärmewirkungsgrad' : 'Thermal Efficiency';
@@ -1106,45 +1113,59 @@ const PyrolysisCalculator = () => {
       const cumulativeTitle = language === 'de' ? 'Kumulativer Cash Flow' : 'Cumulative Cash Flow';
       const revenueTitle = language === 'de' ? 'Jährliche Einnahmen vs. Kosten' : 'Annual Revenue vs. Costs';
       const pieTitle = language === 'de' ? 'Umsatzverteilung' : 'Revenue Distribution';
+      const sankeyTitle = language === 'de' ? 'Sankey-Diagramm – Energiefluss' : 'Sankey Diagram – Energy Flow';
       
-      const chartIds = ['cumulative-chart', 'revenue-chart', 'pie-chart'];
-      const chartTitles = [cumulativeTitle, revenueTitle, pieTitle];
+      const chartIds = ['cumulative-chart', 'revenue-chart', 'pie-chart', 'sankey-chart'];
+      const chartTitles = [cumulativeTitle, revenueTitle, pieTitle, sankeyTitle];
       
       // Small delay before capturing charts
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      const chartWidth = 60;
-      const chartHeight = 45;
+      // Calculate max chart height so 2 charts fit per page (header=55, footer=15, title overhead=12 per chart, gap=4)
+      const usablePageH = pageHeight - 55 - 15;
+      const maxChartSlotH = (usablePageH - 12) / 2; // each slot: title(6) + chart + gap(8) ≈ 14 overhead
+      const maxChartH = maxChartSlotH - 14;
       
       for (let i = 0; i < chartIds.length; i++) {
         try {
-          if (yPosition + chartHeight + 15 > pageHeight - 15) {
-            pdf.addPage();
-            yPosition = addHeader();
-          }
-          
           const chartElement = document.getElementById(chartIds[i]);
           
           if (chartElement) {
-            pdf.setFontSize(10);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(16, 185, 129);
-            const chartTitle = String(chartTitles[i] || '');
-            pdf.text(chartTitle, margin, yPosition);
-            yPosition += 6;
-            
             try {
               const canvas = await html2canvas(chartElement, {
                 backgroundColor: '#111827',
-                scale: 1,
+                scale: 2,
                 logging: false,
                 useCORS: true,
                 allowTaint: true
               });
               
+              // Scale proportionally: fit to contentWidth, then cap height
+              const imgAspect = canvas.width / canvas.height;
+              let drawW = contentWidth;
+              let drawH = contentWidth / imgAspect;
+              if (drawH > maxChartH) {
+                drawH = maxChartH;
+                drawW = drawH * imgAspect;
+              }
+              
+              // Check if we need a new page
+              if (yPosition + drawH + 14 > pageHeight - 15) {
+                pdf.addPage();
+                yPosition = addHeader();
+              }
+              
+              pdf.setFontSize(10);
+              pdf.setFont('helvetica', 'bold');
+              pdf.setTextColor(16, 185, 129);
+              const chartTitle = String(chartTitles[i] || '');
+              pdf.text(chartTitle, margin, yPosition);
+              yPosition += 6;
+              
               const imgData = canvas.toDataURL('image/png');
-              pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-              yPosition += chartHeight + 8;
+              const drawX = margin + (contentWidth - drawW) / 2;
+              pdf.addImage(imgData, 'PNG', drawX, yPosition, drawW, drawH);
+              yPosition += drawH + 8;
               console.log(`Chart ${i} captured successfully`);
             } catch (canvasError) {
               console.warn(`Could not capture chart ${i}:`, canvasError);
@@ -1194,10 +1215,14 @@ const PyrolysisCalculator = () => {
       <div className="bg-gray-900 border-b border-gray-700 shadow-xl">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-8">
               <a href="https://www.decarbo-engineering.com" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
                 <img src={decarboLogo} alt="Decarbo Engineering" className="h-24 w-auto cursor-pointer" />
               </a>
+              <div className="flex flex-col items-start ml-10">
+                <span className="text-white text-xs font-bold mb-1 tracking-wide pl-[91px]">In cooperation with:</span>
+                <img src={biocharEuropeLogo} alt="Biochar Europe" className="h-[81px] w-auto" />
+              </div>
             </div>
             <button onClick={() => setLanguage(language === 'de' ? 'en' : 'de')} className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors border border-gray-700">
               <Globe className="w-5 h-5" />
@@ -1211,7 +1236,7 @@ const PyrolysisCalculator = () => {
       <div className="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-6 py-16">
           {/* Main Hero Content - Left Aligned with Image Right */}
-          <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
+          <div className="flex flex-col lg:flex-row items-end gap-12 mb-12">
             {/* Left Content */}
             <div className="flex-1">
               {/* Title Section */}
@@ -1420,7 +1445,7 @@ const PyrolysisCalculator = () => {
                   </label>
                   <div className="flex items-center gap-3">
                     <input id="plant-capacity" name="plantCapacity" type="range" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                    <input type="number" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="w-24 px-2 py-1 text-sm text-white bg-gray-700 border border-blue-500/30 rounded text-right focus:outline-none focus:border-blue-400" />
+                    <input type="number" min="200" max="20000" step="50" value={inputs.plantCapacity} onChange={(e) => handleInputChange('plantCapacity', e.target.value)} className="w-28 px-2 py-1 text-sm text-white bg-gray-700 border border-blue-500/50 rounded-md text-right focus:outline-none focus:border-blue-400" />
                   </div>
                 </div>
                 <div>
@@ -1548,7 +1573,7 @@ const PyrolysisCalculator = () => {
                   </label>
                   <div className="flex items-center gap-3">
                     <input id="initial-investment" name="initialInvestment" type="range" min="100000" max="20000000" step="10000" value={inputs.initialInvestment} onChange={(e) => handleInputChange('initialInvestment', e.target.value)} className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
-                    <input type="number" min="100000" max="20000000" step="10000" value={inputs.initialInvestment} onChange={(e) => handleInputChange('initialInvestment', e.target.value)} className="w-32 px-2 py-1 text-sm text-white bg-gray-700 border border-orange-500/30 rounded text-right focus:outline-none focus:border-orange-400" />
+                    <input type="number" min="100000" max="20000000" step="10000" value={inputs.initialInvestment} onChange={(e) => handleInputChange('initialInvestment', e.target.value)} className="w-36 px-2 py-1 text-sm text-white bg-gray-700 border border-orange-500/50 rounded-md text-right focus:outline-none focus:border-orange-400" />
                   </div>
                 </div>
                 <div>
@@ -1685,6 +1710,11 @@ const PyrolysisCalculator = () => {
                     <input id="biochar-carbon-content" name="biocharCarbonContent" type="range" min="0" max="100" step="1" value={inputs.biocharCarbonContent} onChange={(e) => handleInputChange('biocharCarbonContent', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
                     {expandedInfo['biocharCarbonContent'] && (
                       <div className="mt-2 text-xs text-gray-400 bg-orange-900/20 p-2 rounded">
+                        <p className="mb-2 font-bold text-orange-300">
+                          {language === 'de'
+                            ? 'ℹ️ Dieser Parameter ist rein informativ und fließt nicht in die wirtschaftliche Berechnung ein. Die CO₂-Senkenleistung wird über den LCA-Faktor berechnet.'
+                            : 'ℹ️ This parameter is for informational purposes only and does not affect the economic calculation. CO₂ removal performance is calculated via the LCA factor.'}
+                        </p>
                         <p className="mb-2">
                           {language === 'de'
                             ? 'Der Kohlenstoffanteil (C-Anteil) in der Biokohle variiert stark je nach Ausgangsmaterial. Unterschiedliche Biomassen enthalten unterschiedlich hohe mineralische (Asche-)Anteile. Während der Pyrolyse werden diese mineralischen Bestandteile in der Kohle aufkonzentriert – der organische Anteil wird teils in Gas umgewandelt, die Mineralien bleiben jedoch vollständig in der Kohle. Je höher der Aschegehalt der Biomasse, desto niedriger der C-Anteil in der resultierenden Biokohle.'
@@ -1827,7 +1857,7 @@ const PyrolysisCalculator = () => {
                         <Info className="w-5 h-5" />
                       </button>
                     </div>
-                    <input id="lca-factor" name="lcaFactor" type="range" min="1" max="3.6" step="0.1" value={inputs.lcaFactor} onChange={(e) => handleInputChange('lcaFactor', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                    <input id="lca-factor" name="lcaFactor" type="range" min="0" max="3.6" step="0.1" value={inputs.lcaFactor} onChange={(e) => handleInputChange('lcaFactor', e.target.value)} className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" />
                     {expandedInfo['lcaFactor'] && (
                       <div className="mt-1 text-xs text-gray-400 bg-green-900/20 p-2 rounded space-y-1">
                         {language === 'de' ? (
@@ -1922,12 +1952,12 @@ const PyrolysisCalculator = () => {
                       <span className="font-bold text-white">{inputs.biocharBulkDensity > 0 ? formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) / (inputs.biocharBulkDensity / 1000), 0) : '–'} m³/{language === 'de' ? 'a' : 'yr'}</span>
                     </div>
                     <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
-                      <span className="text-gray-400">{language === 'de' ? 'Umsatz' : 'Sales'}: </span>
+                      <span className="text-gray-400">{language === 'de' ? 'Umsatz Biochar' : 'Biochar Sales'}: </span>
                       <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * inputs.biocharPrice)} €/{language === 'de' ? 'a' : 'yr'}</span>
                     </div>
                     <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
                       <span className="text-gray-400">CO₂: </span>
-                      <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * (inputs.biocharCarbonContent / 100), 1)} t/{language === 'de' ? 'a' : 'yr'}</span>
+                      <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * inputs.lcaFactor, 1)} t/{language === 'de' ? 'a' : 'yr'}</span>
                     </div>
                     <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
                       <span className="text-gray-400">{t.certificateRevenue}: </span>
@@ -2360,7 +2390,7 @@ const PyrolysisCalculator = () => {
                 const nodeW = 18;
 
                 return (
-                  <div className="w-full mt-4 p-4 bg-gray-800/80 rounded-lg border border-gray-600/40">
+                  <div id="sankey-chart" className="w-full mt-4 p-4 bg-gray-800/80 rounded-lg border border-gray-600/40">
                     <h4 className="text-lg font-bold text-gray-300 mb-3">
                       {language === 'de' ? '🔀 Sankey-Diagramm – Energiefluss' : '🔀 Sankey Diagram – Energy Flow'}
                     </h4>
@@ -2624,7 +2654,22 @@ const PyrolysisCalculator = () => {
                     <div className={`${elecClass} ${baseClass}`}><h3 className={elecText}>{t.revenueElectricity}</h3><p className="text-2xl font-bold text-white">{formatNumber(electricityRevenue)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
                     <div className={`${bioOilClass} ${baseClass}`}><h3 className={bioOilText}>{t.revenueBioOil}</h3><p className="text-2xl font-bold text-white">{formatNumber(bioOilRevenue)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
                     <div className={`${biocharClass} ${baseClass}`}><h3 className={biocharText}>{t.revenueBiochar}</h3><p className="text-2xl font-bold text-white">{formatNumber(biocharRevenue)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
-                    <div className={`${certClass} ${baseClass}`}><h3 className={certText}>{t.revenueCertificates}</h3><p className="text-2xl font-bold text-white">{formatNumber(certificateRevenue)}k €/{language === 'de' ? 'a' : 'y'}</p></div>
+                    <div className={`${certClass} ${baseClass} relative`}>
+                      <div className="flex items-center justify-between">
+                        <h3 className={certText}>{t.revenueCertificates}</h3>
+                        <button onClick={() => toggleInfo('certRevenueInfo')} className="text-emerald-300 hover:text-emerald-200">
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-2xl font-bold text-white">{formatNumber(certificateRevenue)}k €/{language === 'de' ? 'a' : 'y'}</p>
+                      {expandedInfo['certRevenueInfo'] && (
+                        <div className="mt-2 text-xs text-gray-200 bg-black/30 p-2 rounded">
+                          {language === 'de'
+                            ? 'Netto-Umsatz: Ca. 25% des Bruttoumsatzes gehen an dMRV-Dienstleister und CO₂-Händler (Zertifizierung, Verifizierung, Vermarktung).'
+                            : 'Net revenue: Approx. 25% of gross revenue goes to dMRV service providers and CO₂ traders (certification, verification, marketing).'}
+                        </div>
+                      )}
+                    </div>
                   </>
                 );
               })()}
