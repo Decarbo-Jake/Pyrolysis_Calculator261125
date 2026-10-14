@@ -308,43 +308,47 @@ const PyrolysisCalculator = () => {
       const contentWidth = pageWidth - 2 * margin;
       let yPosition = margin;
       
-      // Pre-load logo as data URL synchronously
-      let logoDataUrl: string | null = null;
-      let logoAspectRatio = 1;
-      try {
-        const logoImg = new Image();
-        logoImg.crossOrigin = 'anonymous';
-        await new Promise<void>((resolve) => {
-          logoImg.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = logoImg.width;
-            canvas.height = logoImg.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(logoImg, 0, 0);
-              logoDataUrl = canvas.toDataURL('image/png');
-              logoAspectRatio = logoImg.width / logoImg.height;
-            }
-            resolve();
-          };
-          logoImg.onerror = () => resolve();
-          logoImg.src = decarboLogo;
-        });
-      } catch (err) {
-        console.warn('Logo pre-load failed:', err);
-      }
-      
-      // Header function with logo (1/3 page width, centered)
+      // Pre-load logos as PNG data URLs (SVGs are rasterized, since jsPDF cannot embed SVG)
+      const loadAsPng = (src: string, scale = 1) => new Promise<{ dataUrl: string; aspect: number } | null>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          if (!ctx || !img.width || !img.height) return resolve(null);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve({ dataUrl: canvas.toDataURL('image/png'), aspect: img.width / img.height });
+        };
+        img.onerror = () => resolve(null);
+        img.src = src;
+      });
+      const [decarboPng, biocharEuropePng] = await Promise.all([loadAsPng(decarboLogo), loadAsPng(biocharEuropeLogo, 4)]);
+      if (!decarboPng) console.warn('Decarbo logo could not be loaded for the PDF');
+      if (!biocharEuropePng) console.warn('Biochar Europe logo could not be loaded for the PDF');
+
+      // Header: Decarbo logo left, Biochar Europe (cooperation partner) right
       const addHeader = () => {
         pdf.setFillColor(17, 24, 39);
         pdf.rect(0, 0, pageWidth, 50, 'F');
-        
-        if (logoDataUrl) {
+
+        if (decarboPng) {
           const logoWidth = pageWidth / 3;
-          const logoHeight = logoWidth / logoAspectRatio;
-          const logoX = (pageWidth - logoWidth) / 2;
-          const logoY = (50 - logoHeight) / 2;
-          pdf.addImage(logoDataUrl, 'PNG', logoX, Math.max(logoY, 2), logoWidth, Math.min(logoHeight, 46));
+          const logoHeight = Math.min(logoWidth / decarboPng.aspect, 40);
+          pdf.addImage(decarboPng.dataUrl, 'PNG', margin, (48 - logoHeight) / 2, logoHeight * decarboPng.aspect, logoHeight, 'decarbo-logo', 'FAST');
+        }
+
+        if (biocharEuropePng) {
+          const partnerHeight = 18;
+          const partnerWidth = partnerHeight * biocharEuropePng.aspect;
+          const partnerX = pageWidth - margin - partnerWidth;
+          const partnerY = (48 - partnerHeight) / 2 + 3;
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(7);
+          pdf.setTextColor(255, 255, 255);
+          pdf.text(language === 'de' ? 'In Kooperation mit:' : 'In cooperation with:', partnerX, partnerY - 2.5);
+          pdf.addImage(biocharEuropePng.dataUrl, 'PNG', partnerX, partnerY, partnerWidth, partnerHeight, 'biochar-europe-logo', 'FAST');
         }
         
         pdf.setDrawColor(34, 197, 94);
@@ -779,11 +783,13 @@ const PyrolysisCalculator = () => {
         pdf.text(introLines, margin, yPosition);
         yPosition += introLines.length * 4.2 + 4;
 
+        // Status column only when the visitor used the check; otherwise the questions start at the margin
+        const indent = checkUsed ? 22 : 0;
         const doneLabel = language === 'de' ? 'Geklärt' : 'Clarified';
         const openLabel = language === 'de' ? 'Offen' : 'Open';
         check.questions.forEach((q, i) => {
           const isDone = clarified.includes(i);
-          const qLines = pdf.splitTextToSize(pdfSafe(q.question), contentWidth - 30);
+          const qLines = pdf.splitTextToSize(pdfSafe(q.question), contentWidth - indent);
           const blockH = 5 + qLines.length * 4.2 + 3;
           if (yPosition + blockH > pageHeight - 15) {
             pdf.addPage();
@@ -794,10 +800,10 @@ const PyrolysisCalculator = () => {
           if (isDone) pdf.setTextColor(22, 163, 74); else pdf.setTextColor(234, 88, 12);
           pdf.text(checkUsed ? (isDone ? doneLabel : openLabel) : '', margin, yPosition);
           pdf.setTextColor(30, 30, 30);
-          pdf.text(`${i + 1}. ${pdfSafe(q.topic)}`, margin + 30, yPosition);
+          pdf.text(`${i + 1}. ${pdfSafe(q.topic)}`, margin + indent, yPosition);
           pdf.setFont('helvetica', 'normal');
           pdf.setTextColor(60, 60, 60);
-          pdf.text(qLines, margin + 30, yPosition + 4.5);
+          pdf.text(qLines, margin + indent, yPosition + 4.5);
           yPosition += blockH;
         });
 
