@@ -1,4 +1,4 @@
-// Content for the "Why Projects Fail" panel.
+// Content for the "Why some biochar projects struggle to meet expectations" panel.
 // Kept as plain data (no React) so it can be reused for LinkedIn posts, newsletters or a PDF.
 // DRAFT – to be reviewed by Decarbo Engineering before publishing.
 
@@ -21,9 +21,9 @@ export interface WhyProjectsFailContent {
 
 export const whyProjectsFailContent: Record<Language, WhyProjectsFailContent> = {
   de: {
-    title: "Warum Projekte scheitern",
-    intro: "Die meisten Biochar-Projekte scheitern nicht an der Technik, sondern an Annahmen, die nie überprüft wurden. Diese acht Fragen sollten Sie beantworten können, bevor Sie investieren.",
-    whyItFailsLabel: "Warum Projekte hier scheitern",
+    title: "Warum manche Biochar-Projekte hinter den Erwartungen zurückbleiben",
+    intro: "Wenn Biochar-Projekte hinter den Erwartungen zurückbleiben, liegt das oft an Annahmen, die nie überprüft wurden – zur Biomasse, zu den Abnehmern und zur Technik selbst. Diese neun Fragen sollten Sie beantworten können, bevor Sie investieren.",
+    whyItFailsLabel: "Wo Projekte hier an Grenzen stoßen",
     evidenceLabel: "Welche Nachweise Sie verlangen sollten",
     questions: [
       {
@@ -41,7 +41,7 @@ export const whyProjectsFailContent: Record<Language, WhyProjectsFailContent> = 
       {
         topic: "Wärmeabnahme",
         question: "Gibt es überhaupt einen Wärmeabnehmer – auf welchem Temperaturniveau, und ganzjährig oder nur im Winter?",
-        whyItFails: "Zuerst muss geklärt sein, ob Wärme direkt thermisch genutzt werden kann und ob das Temperaturniveau zum Bedarf passt, etwa Heizwasser oder Prozessdampf. Viele Business Cases rechnen zudem mit voller Wärmeabnahme über alle Volllaststunden. In der Realität fehlt im Sommer der Bedarf, und die Erlöse brechen ein.",
+        whyItFails: "Zuerst muss geklärt sein, ob Wärme direkt thermisch genutzt werden kann und ob das Temperaturniveau zum Bedarf passt, etwa Heizwasser oder Prozessdampf. Viele Business Cases rechnen zudem mit voller Wärmeabnahme über alle Volllaststunden. In der Realität fehlt im Sommer der Bedarf, und die Erlöse sinken deutlich.",
         evidence: "Benötigte Temperaturniveaus, Lastgänge des Abnehmers über ein ganzes Jahr, Wärmeliefervertrag, Konzept für Überschusswärme."
       },
       {
@@ -73,13 +73,19 @@ export const whyProjectsFailContent: Record<Language, WhyProjectsFailContent> = 
         question: "Läuft die Technologie bereits mit genau diesem Rohstoff in vergleichbarer Größe?",
         whyItFails: "Eine Anlage, die mit Holzhackschnitzeln funktioniert, läuft nicht automatisch mit Stroh oder Gärresten. Fehlender Service vor Ort verlängert jeden Stillstand.",
         evidence: "Referenzanlagen mit gleichem Rohstoff, Leistungsgarantien, Servicevertrag und Ersatzteilverfügbarkeit."
+      },
+      {
+        topic: "Anlagenleistung & Qualität",
+        question: "Erreicht die Anlage ihre Nennkapazität im Dauerbetrieb – und das in der zugesagten Biochar-Qualität?",
+        whyItFails: "Viele Anlagen, besonders mit Nennkapazitäten über 2 t/h, erreichen ihre Nennleistung in der Praxis nicht. Ursache sind oft eine falsche Auslegung des Drehrohrofens und weitere technologiespezifische Konstruktionsprobleme. Fehlt Kapazität, fehlen Biochar, Zertifikate und Wärme – der Business Case gerät unter Druck.",
+        evidence: "Eine Technologiebewertung vor jedem Projekt, um die am besten passende Technologie zu finden und fundiert zu entscheiden: Betriebsdaten von Referenzanlagen in vergleichbarer Größe, Leistungs- und Qualitätsgarantien im Liefervertrag, ein Abnahmetest bei Nennlast."
       }
     ]
   },
   en: {
-    title: "Why Projects Fail",
-    intro: "Most biochar projects don't fail because of the technology, but because of assumptions nobody checked. You should be able to answer these eight questions before you invest.",
-    whyItFailsLabel: "Why projects fail here",
+    title: "Why some biochar projects struggle to meet expectations",
+    intro: "When biochar projects fall short of expectations, it is often because of assumptions nobody checked – about the biomass, the buyers and the technology itself. You should be able to answer these nine questions before you invest.",
+    whyItFailsLabel: "Where projects struggle",
     evidenceLabel: "What evidence to ask for",
     questions: [
       {
@@ -97,7 +103,7 @@ export const whyProjectsFailContent: Record<Language, WhyProjectsFailContent> = 
       {
         topic: "Heat offtake",
         question: "Is there a heat customer at all – at what temperature level, and year-round or only in winter?",
-        whyItFails: "First you need to know whether the heat can be used directly and whether its temperature level matches the demand, such as hot water or process steam. Many business cases also assume all heat is sold across all full-load hours. In reality, summer demand is missing and revenue collapses.",
+        whyItFails: "First you need to know whether the heat can be used directly and whether its temperature level matches the demand, such as hot water or process steam. Many business cases also assume all heat is sold across all full-load hours. In reality, summer demand is missing and revenue drops significantly.",
         evidence: "Required temperature levels, the customer's load profile over a full year, a heat supply contract, a concept for surplus heat."
       },
       {
@@ -129,6 +135,12 @@ export const whyProjectsFailContent: Record<Language, WhyProjectsFailContent> = 
         question: "Is the technology already running on exactly this feedstock at a comparable scale?",
         whyItFails: "A plant that works with wood chips won't automatically run on straw or digestate. Missing local service turns every outage into a long one.",
         evidence: "Reference plants with the same feedstock, performance guarantees, a service contract and spare-part availability."
+      },
+      {
+        topic: "Technology performance & quality",
+        question: "Does the plant reach its nameplate capacity in continuous operation – at the promised biochar quality?",
+        whyItFails: "Many plants, especially those with nameplate capacities above 2 t/h, don't reach their rated output in practice. Common causes are a wrongly designed rotary kiln and other technology-specific design problems. Missing capacity means missing biochar, certificates and heat – and the business case comes under pressure.",
+        evidence: "A technology evaluation before every project, to find the best-fit technology and make an informed decision: operating data from reference plants of comparable size, performance and quality guarantees in the supply contract, an acceptance test at nameplate load."
       }
     ]
   }

@@ -19,7 +19,7 @@ const WhyProjectsFail = ({ language }: WhyProjectsFailProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {c.questions.map((item, i) => (
-          <details key={i} className="group bg-gray-900/50 border border-gray-700 rounded-lg p-4 open:border-orange-500/40 transition-colors">
+          <details key={i} className={`group bg-gray-900/50 border border-gray-700 rounded-lg p-4 open:border-orange-500/40 transition-colors ${i === c.questions.length - 1 && c.questions.length % 2 === 1 ? 'md:col-span-2' : ''}`}>
             <summary className="cursor-pointer list-none flex items-start gap-3">
               <span className="flex-shrink-0 w-7 h-7 rounded-full bg-orange-500/20 text-orange-400 text-sm font-bold flex items-center justify-center">{i + 1}</span>
               <span className="flex-1">
