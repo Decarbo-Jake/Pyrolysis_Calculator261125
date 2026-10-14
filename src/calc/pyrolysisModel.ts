@@ -118,8 +118,8 @@ export interface EconomicResults {
 export interface Production {
   annualFeedstock: number;          // t/yr
   biocharProduction: number;        // t/yr
-  annualCO2Removal: number;         // t CO₂/yr, biochar × LCA factor (shown as sink performance)
-  certificateBasis: number;         // t/yr used for certificate revenue, biochar × carbon content
+  annualCO2Removal: number;         // t CO₂/yr, biochar × LCA factor (basis for certificates)
+  totalCO2Removal: number;          // t CO₂ over project lifetime
 }
 
 // All revenues and costs in €/yr
@@ -210,10 +210,9 @@ export const calculatePyrolysis = (inputs: PyrolysisInputs, products: PyrolysisP
   const biocharProduction = annualFeedstock * (inputs.biocharYield / 100);
   const biocharSales = biocharProduction * inputs.biocharPrice;
 
-  // CO₂ Certificate Revenue (net of trading + dMRV fees)
+  // CO₂ Certificate Revenue — biochar × LCA factor × certificate price, net of trading + dMRV fees
   const annualCO2Removal = biocharProduction * inputs.lcaFactor;
-  const certificateBasis = biocharProduction * (inputs.biocharCarbonContent / 100);
-  const certificateRevenue = certificateBasis * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100);
+  const certificateRevenue = annualCO2Removal * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100);
 
   // Heat Revenue — Thermische Nennleistung × Volllaststunden × Anteil verkaufter Wärme
   const heatSales = products.heat
@@ -263,7 +262,7 @@ export const calculatePyrolysis = (inputs: PyrolysisInputs, products: PyrolysisP
 
   return {
     energy,
-    production: { annualFeedstock, biocharProduction, annualCO2Removal, certificateBasis },
+    production: { annualFeedstock, biocharProduction, annualCO2Removal, totalCO2Removal: annualCO2Removal * projectLifetime },
     revenue: { biocharSales, certificateRevenue, heatSales, electricitySales, bioOilSales },
     results: {
       npv: npv / 1000,

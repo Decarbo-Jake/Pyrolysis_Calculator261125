@@ -114,7 +114,7 @@ const PyrolysisCalculator = () => {
 
   // Computed: energy flows, revenues and KPIs (see calc/pyrolysisModel.ts)
   const model = useMemo(() => calculatePyrolysis(inputs, products), [inputs, products]);
-  const { results } = model;
+  const { results, production, revenue } = model;
   const { pyrolysisGasEnergyMW, oilEnergyMW, residualGasEnergyMW, waermestromMW, waermestromKW, elecPowerKW, elecProductionKWh, residualHeatMW, usableResidualHeatMW, thermalRatedPowerMW, thermalRatedPowerKW } = model.energy;
 
   const handleProductChange = (product) => {
@@ -159,9 +159,9 @@ const PyrolysisCalculator = () => {
       const elecRev = products.electricity ? Math.max(0, (elecProductionKWh - inputs.electricalPower * inputs.operatingHours) * inputs.electricityPrice / 1000) : 0;
       const bioOilRev = products.bioOil ? ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100) * inputs.bioOilPrice) : 0;
       const biocharRev = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.biocharPrice / 1000;
-      const certRev = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100) * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100)) / 1000;
-      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100);
-      const totalCO2 = annualCO2 * inputs.projectLifetime;
+      const certRev = revenue.certificateRevenue / 1000;
+      const annualCO2 = production.annualCO2Removal;
+      const totalCO2 = production.totalCO2Removal;
       
       const templateParams = {
         // Kontaktdaten
@@ -491,7 +491,7 @@ const PyrolysisCalculator = () => {
       pdf.text('Umsatz Zertifikate', margin + (contentWidth - 4) / 3 + 3, yPosition + 3);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      const certRev = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * (inputs.biocharCarbonContent / 100) * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100)) / 1000;
+      const certRev = revenue.certificateRevenue / 1000;
       pdf.text(`${formatNumber(certRev)}k €/a`, margin + (contentWidth - 4) / 3 + 3, yPosition + 10);
       
       yPosition += 16;
@@ -511,8 +511,8 @@ const PyrolysisCalculator = () => {
       pdf.text(co2Title, margin + 2, yPosition + 5);
       yPosition += 10;
       
-      const annualCO2 = (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor;
-      const totalCO2 = annualCO2 * inputs.projectLifetime;
+      const annualCO2 = production.annualCO2Removal;
+      const totalCO2 = production.totalCO2Removal;
       
       // Annual CO2 Box (Green)
       pdf.setFillColor(34, 197, 94);
@@ -1509,11 +1509,11 @@ const PyrolysisCalculator = () => {
                     </div>
                     <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
                       <span className="text-gray-400">CO₂: </span>
-                      <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * inputs.lcaFactor, 1)} t/{language === 'de' ? 'a' : 'yr'}</span>
+                      <span className="font-bold text-white">{formatNumber(production.annualCO2Removal, 1)} t/{language === 'de' ? 'a' : 'yr'}</span>
                     </div>
                     <div className="p-2 bg-green-900/20 rounded border border-green-500/30 text-sm">
                       <span className="text-gray-400">{t.certificateRevenue}: </span>
-                      <span className="font-bold text-white">{formatNumber(((inputs.plantCapacity * inputs.operatingHours * inputs.biocharYield) / 100000) * (inputs.biocharCarbonContent / 100) * inputs.co2RemovalPrice * (1 - inputs.certificateFeeRate / 100))} €/{language === 'de' ? 'a' : 'yr'}</span>
+                      <span className="font-bold text-white">{formatNumber(revenue.certificateRevenue)} €/{language === 'de' ? 'a' : 'yr'}</span>
                     </div>
                   </div>
                 </div>
@@ -2180,12 +2180,7 @@ const PyrolysisCalculator = () => {
                 const electricityRevenue = products.electricity ? Math.max(0, (elecProd - elecConsumption) * inputs.electricityPrice / 1000) : 0;
                 const bioOilRevenue = products.bioOil ? (inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.bioOilYield / 100) * inputs.bioOilPrice / 1000 : 0;
                 const biocharRevenue = ((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.biocharPrice) / 1000;
-                const certificateRevenue =
-                  ((inputs.plantCapacity * inputs.operatingHours / 1000)
-                  * (inputs.biocharYield / 100)
-                  * (inputs.biocharCarbonContent / 100)
-                  * inputs.co2RemovalPrice
-                  * (1 - inputs.certificateFeeRate / 100)) / 1000;
+                const certificateRevenue = revenue.certificateRevenue / 1000;
                 
                 const baseClass = 'p-4 rounded-lg shadow-lg';
                 const heatClass = heatRevenue === 0 ? 'bg-gradient-to-br from-gray-600 to-gray-700 border border-gray-500' : 'bg-gradient-to-br from-cyan-600 to-cyan-700 border border-cyan-500';
@@ -2309,13 +2304,13 @@ const PyrolysisCalculator = () => {
               <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-5 rounded-lg shadow-lg border border-emerald-500">
                 <h3 className="text-sm font-medium text-emerald-100 mb-2">{t.annualCo2SinkingPerformance}</h3>
                 <p className="text-3xl font-bold text-white">
-                  {formatNumber((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor)} t CO₂/{language === 'de' ? 'Jahr' : 'year'}
+                  {formatNumber(production.annualCO2Removal)} t CO₂/{language === 'de' ? 'Jahr' : 'year'}
                 </p>
               </div>
               <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-5 rounded-lg shadow-lg border border-teal-500">
                 <h3 className="text-sm font-medium text-teal-100 mb-2">{t.totalCo2Removal}</h3>
                 <p className="text-3xl font-bold text-white">
-                  {formatNumber(((inputs.plantCapacity * inputs.operatingHours / 1000) * (inputs.biocharYield / 100) * inputs.lcaFactor) * inputs.projectLifetime)} t CO₂
+                  {formatNumber(production.totalCO2Removal)} t CO₂
                 </p>
               </div>
             </div>
@@ -2373,11 +2368,7 @@ const PyrolysisCalculator = () => {
                       const annualFeedstock = (inputs.plantCapacity * inputs.operatingHours) / 1000;
                       const biocharProduction = annualFeedstock * (inputs.biocharYield / 100);
                       const biocharSales = biocharProduction * inputs.biocharPrice / 1000;
-                      const co2Certificates =
-                        biocharProduction
-                        * (inputs.biocharCarbonContent / 100)
-                        * inputs.co2RemovalPrice
-                        * (1 - inputs.certificateFeeRate / 100) / 1000;
+                      const co2Certificates = revenue.certificateRevenue / 1000;
                       let heatSales = 0;
                       if (products.heat) {
                         heatSales = (thermalRatedPowerKW * (inputs.heatYield / 100) * inputs.operatingHours * inputs.heatPrice) / 1000;
