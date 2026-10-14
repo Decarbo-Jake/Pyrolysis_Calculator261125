@@ -6,7 +6,7 @@
 // Changes: Biochar price minimum value set to 0 EUR
 // Status: Production    Ready
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie } from 'recharts';
 import { Calculator, Zap, Flame, Droplets, Leaf, Info, Globe, FileDown, ArrowDown, ArrowUp, ArrowRight, ArrowDownRight } from 'lucide-react';
 import emailjs from '@emailjs/browser';
@@ -14,6 +14,7 @@ import decarboLogo from './assets/decarbo-logo.png';
 import biocharEuropeLogo from './assets/Biochar Europe Logo Small White@3x.svg';
 import WhyProjectsFail from './features/why-projects-fail/WhyProjectsFail';
 import { translations, Language } from './i18n';
+import { calculatePyrolysis, defaultInputs, defaultProducts, PyrolysisInputs, PyrolysisProducts } from './calc/pyrolysisModel';
 
 // Create a helper function to render the heating values table
 const renderHeatingValuesTable = (language: string) => {
@@ -78,63 +79,9 @@ const PyrolysisCalculator = () => {
   const [cookieConsent, setCookieConsent] = useState(false);
   const t = translations[language];
   
-  const [products, setProducts] = useState({
-    biochar: true,
-    heat: false,
-    electricity: false,
-    bioOil: false
-  });
+  const [products, setProducts] = useState<PyrolysisProducts>(defaultProducts);
 
-  const [inputs, setInputs] = useState({
-    plantCapacity: 1000,
-    fuelBulkDensity: 400,
-    fuelHeatValue: 4,
-    operatingHours: 7000,
-    projectLifetime: 10,
-    discountRate: 6,
-    electricalPower: 100,
-    electricityConsumptionPrice: 0.25,
-    thermalEfficiency: 90,
-    initialInvestment: 3000000,
-    feedstockCost: 50,
-    laborCost: 50000,
-    maintenanceCost: 3000000 * 0.025, // 2.5% of initial investment
-    biocharYield: 25,
-    biocharCarbonContent: 80,
-    biocharHeatingValue: 28,
-    biocharBulkDensity: 250,
-    autothermalShare: 10,
-    biocharPrice: 300,
-    lcaFactor: 2.4,
-    co2RemovalPrice: 100,
-    certificateFeeRate: 25,   // % deducted for trading + dMRV fees
-    heatYield: 40,
-    heatPrice: 0.08,
-    electricityYield: 18,
-    electricityPrice: 0.15,
-    usableResidualHeat: 50,
-    bioOilYield: 20,
-    bioOilPrice: 400,
-    bioOilHeatingValue: 22
-  });
-
-  const [results, setResults] = useState({
-    npv: 0,
-    irr: 0,
-    paybackPeriod: 0,
-    annualCashFlows: [],
-    cumulativeCashFlows: [],
-    annualRevenue: 0,
-    annualCosts: 0,
-    totalInvestment: 0,
-    revenueBreakdown: {
-      biocharSales: 0,
-      co2Certificates: 0,
-      heatSales: 0,
-      electricitySales: 0,
-      bioOilSales: 0
-    }
-  });
+  const [inputs, setInputs] = useState<PyrolysisInputs>(defaultInputs);
 
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [userName, setUserName] = useState('');
@@ -165,22 +112,10 @@ const PyrolysisCalculator = () => {
     setExpandedInfo(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Computed: Intermediate energy values
-  const pyrolysisGasEnergyMW = (inputs.plantCapacity * inputs.fuelHeatValue / 1000) - (inputs.plantCapacity * (inputs.biocharYield / 100) * inputs.biocharHeatingValue / (1000 * 3.6));
-  const oilEnergyMW = products.bioOil ? (inputs.plantCapacity * (1 - inputs.biocharYield / 100)) * (inputs.bioOilYield / 100) * inputs.bioOilHeatingValue / 3600 : 0;
-  const residualGasEnergyMW = pyrolysisGasEnergyMW - oilEnergyMW;
-  // Computed: Wärmestrom (heat flow after autothermal share; based on residual gas when oil condensation is active)
-  const waermestromMW = residualGasEnergyMW * (1 - inputs.autothermalShare / 100);
-  const waermestromKW = waermestromMW * 1000;
-  // Electrical power and production from Wärmestrom × Stromausbeute
-  const elecPowerKW = products.electricity ? waermestromKW * (inputs.electricityYield / 100) : 0;
-  const elecProductionKWh = products.electricity ? elecPowerKW * inputs.operatingHours : 0;
-  // Residual heat after electricity generation
-  const residualHeatMW = products.electricity ? waermestromMW * (1 - inputs.electricityYield / 100) : waermestromMW;
-  const usableResidualHeatMW = products.electricity ? residualHeatMW * (inputs.usableResidualHeat / 100) : waermestromMW;
-  // Thermal rated power: based on usable residual heat (if electricity active) or full Wärmestrom
-  const thermalRatedPowerMW = (products.electricity ? usableResidualHeatMW : waermestromMW) * (inputs.thermalEfficiency / 100);
-  const thermalRatedPowerKW = thermalRatedPowerMW * 1000;
+  // Computed: energy flows, revenues and KPIs (see calc/pyrolysisModel.ts)
+  const model = useMemo(() => calculatePyrolysis(inputs, products), [inputs, products]);
+  const { results } = model;
+  const { pyrolysisGasEnergyMW, oilEnergyMW, residualGasEnergyMW, waermestromMW, waermestromKW, elecPowerKW, elecProductionKWh, residualHeatMW, usableResidualHeatMW, thermalRatedPowerMW, thermalRatedPowerKW } = model.energy;
 
   const handleProductChange = (product) => {
     if (product === 'biochar') return;
@@ -190,121 +125,6 @@ const PyrolysisCalculator = () => {
   const handleInputChange = (field, value) => {
     setInputs(prev => ({ ...prev, [field]: parseFloat(value) || 0 }));
   };
-
-  const calculateNPV = () => {
-    const { plantCapacity, operatingHours, projectLifetime, discountRate, initialInvestment, feedstockCost, laborCost, maintenanceCost, biocharYield, biocharPrice, heatYield, heatPrice, electricityYield, electricityPrice, bioOilYield, bioOilPrice, certificateFeeRate } = inputs;
-    
-    const annualFeedstock = (plantCapacity * operatingHours) / 1000;
-    
-    const totalInvestment = initialInvestment;
-    
-    let annualRevenue = 0;
-    
-    // Biochar Revenue
-    const biocharProduction = annualFeedstock * (biocharYield / 100);
-    const biocharSalesRevenue = biocharProduction * biocharPrice;
-    annualRevenue += biocharSalesRevenue;
-    
-    // CO₂ Certificate Revenue
-    const annualCO2Removal = biocharProduction * (inputs.biocharCarbonContent / 100);
-    const certificateRevenue =
-      annualCO2Removal
-      * inputs.co2RemovalPrice
-      * (1 - certificateFeeRate / 100);
-    annualRevenue += certificateRevenue;
-    
-    // Heat Revenue — Thermische Nennleistung × Volllaststunden × Anteil verkaufter Wärme
-    if (products.heat) {
-      const heatRevenue = thermalRatedPowerKW * (inputs.heatYield / 100) * operatingHours * heatPrice;
-      annualRevenue += heatRevenue;
-    }
-    
-    // Electricity Revenue (only surplus counted) — Stromproduktion = Wärmestrom × Stromausbeute
-    let electricityProduction = 0;
-    if (products.electricity) {
-      electricityProduction = waermestromKW * (electricityYield / 100) * operatingHours;
-      const grossElectricityConsumption = inputs.electricalPower * operatingHours;
-      const surplusElectricity = Math.max(0, electricityProduction - grossElectricityConsumption);
-      const electricityRevenue = surplusElectricity * electricityPrice;
-      annualRevenue += electricityRevenue;
-    }
-    
-    // Bio-Oil Revenue
-    if (products.bioOil) {
-      const bioOilProduction = annualFeedstock * (bioOilYield / 100);
-      const bioOilRevenue = bioOilProduction * bioOilPrice;
-      annualRevenue += bioOilRevenue;
-    }
-    
-    const annualFeedstockCost = annualFeedstock * feedstockCost;
-    // Electricity costs only for net consumption (gross consumption minus production)
-    const grossElectricityConsumption = inputs.electricalPower * operatingHours;
-    const netElectricityConsumption = Math.max(0, grossElectricityConsumption - electricityProduction);
-    const annualElectricityCost = netElectricityConsumption * inputs.electricityConsumptionPrice;
-    const totalAnnualCosts = annualFeedstockCost + laborCost + maintenanceCost + annualElectricityCost;
-    const annualCashFlow = annualRevenue - totalAnnualCosts;
-    
-    let npv = -totalInvestment;
-    const cashFlows = [];
-    const cumulativeFlows = [];
-    let cumulative = -totalInvestment;
-    
-    for (let year = 1; year <= projectLifetime; year++) {
-      const discountedCashFlow = annualCashFlow / Math.pow(1 + discountRate / 100, year);
-      npv += discountedCashFlow;
-      cashFlows.push({ year, cashFlow: annualCashFlow, discountedCashFlow, revenue: annualRevenue, costs: totalAnnualCosts });
-      cumulative += annualCashFlow;
-      cumulativeFlows.push({ year, cumulative: cumulative / 1000 });
-    }
-    
-    // Calculate IRR using Newton-Raphson method for better accuracy
-    let irr = 0;
-    const calculateNPVAtRate = (rate: number) => {
-      let npvAtRate = -totalInvestment;
-      for (let year = 1; year <= projectLifetime; year++) {
-        npvAtRate += annualCashFlow / Math.pow(1 + rate, year);
-      }
-      return npvAtRate;
-    };
-    
-    const calculateNPVDerivative = (rate: number) => {
-      let derivative = 0;
-      for (let year = 1; year <= projectLifetime; year++) {
-        derivative -= (year * annualCashFlow) / Math.pow(1 + rate, year + 1);
-      }
-      return derivative;
-    };
-    
-    // Newton-Raphson iteration
-    let rate = 0.1; // Initial guess (10%)
-    let iterations = 0;
-    const maxIterations = 100;
-    const tolerance = 1e-6;
-    
-    while (iterations < maxIterations) {
-      const npvValue = calculateNPVAtRate(rate);
-      if (Math.abs(npvValue) < tolerance) {
-        irr = rate * 100; // Convert back to percentage
-        break;
-      }
-      const derivative = calculateNPVDerivative(rate);
-      if (Math.abs(derivative) < 1e-10) break; // Avoid division by very small number
-      rate = rate - npvValue / derivative;
-      iterations++;
-    }
-    
-    // Clamp IRR to reasonable range
-    irr = Math.max(Math.min(irr, 100), -100);
-    
-    // Guard against division-by-zero: if annual cash flow is zero or negative, payback is undefined
-    let paybackPeriod = 0;
-    if (annualCashFlow > 0) {
-      paybackPeriod = totalInvestment / annualCashFlow;
-    }
-    setResults({ npv: npv / 1000, irr, paybackPeriod, annualCashFlows: cashFlows, cumulativeCashFlows: cumulativeFlows, annualRevenue: annualRevenue / 1000, annualCosts: totalAnnualCosts / 1000, totalInvestment: totalInvestment / 1000 });
-  };
-
-  useEffect(() => { calculateNPV(); }, [inputs, products]);
 
   // Automatisch Wartungskosten an 2.5% der Gesamtinvestition anpassen
   useEffect(() => {
